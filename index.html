@@ -242,7 +242,7 @@
             <div id="currentUserAvatar" class="w-6 h-6 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center shadow-xs">
               ?
             </div>
-            <span id="currentUserNameDisplay" class="text-xs font-semibold text-slate-700 max-w-[80px] truncate">Set Name</span>
+            <span id="currentUserNameDisplay" class="text-xs font-semibold text-slate-700 max-w-[92px] truncate">Select Staff</span>
             <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
           </button>
         </div>
@@ -296,18 +296,7 @@
 
       <!-- Filter Pills -->
       <section class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5" id="filterBar">
-        <button data-filter="all" onclick="setFilter('all')" class="filter-chip active shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-slate-900 text-white shadow-xs transition active:scale-95">
-          All Tasks
-        </button>
-        <button data-filter="mine" onclick="setFilter('mine')" class="filter-chip shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50 transition active:scale-95">
-          My Tasks
-        </button>
-        <button data-filter="working" onclick="setFilter('working')" class="filter-chip shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50 transition active:scale-95">
-          In Progress
-        </button>
-        <button data-filter="done" onclick="setFilter('done')" class="filter-chip shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50 transition active:scale-95">
-          Completed
-        </button>
+        <!-- Populated dynamically with All Team, My Tasks, Statuses & Predefined Employees -->
       </section>
 
       <!-- Task List Container -->
@@ -364,14 +353,14 @@
             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">What needs to be done?</label>
             <input type="text" id="taskTitleInput" required maxlength="140" placeholder="e.g., Finalize Q4 client deck & send review"
               class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" />
-          </div>
-
-          <!-- Two-Column Row: Employee Name & Assigned Day (Date Only) -->
-          <div class="grid grid-cols-2 gap-3">
+          <!-- Two-Column Row: Predefined Employee Selector & Assigned Day (Date Only) -->
+          <div class="space-y-3">
             <div>
-              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Employee</label>
-              <input type="text" id="taskEmployeeInput" required maxlength="32" placeholder="Your name"
-                class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" />
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Assign To Employee</label>
+              <div id="createEmployeeChips" class="flex flex-wrap gap-2">
+                <!-- Populated dynamically from EMPLOYEES constant -->
+              </div>
+              <input type="hidden" id="taskEmployeeInput" required />
             </div>
 
             <div>
@@ -427,32 +416,20 @@
       <div id="profilePanel" class="sheet-panel absolute bottom-0 inset-x-0 mx-auto max-w-[480px] bg-white rounded-t-3xl p-6 safe-bottom shadow-2xl translate-y-full">
         <div class="w-10 h-1.5 bg-slate-200 rounded-full mx-auto mb-5"></div>
         
-        <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center justify-between mb-4">
           <div>
-            <h3 class="text-lg font-extrabold text-slate-900">Who's Checking In?</h3>
-            <p class="text-xs text-slate-500">Your name tags new tasks and highlights your work.</p>
+            <h3 class="text-lg font-extrabold text-slate-900">Select Your Profile</h3>
+            <p class="text-xs text-slate-500">Tap your name to check in and manage your daily tasks.</p>
           </div>
-          <button onclick="closeProfileModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center">
+          <button onclick="closeProfileModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200">
             <i data-lucide="x" class="w-4 h-4"></i>
           </button>
         </div>
 
-        <form onsubmit="handleSaveEmployeeName(event)" class="space-y-4">
-          <div>
-            <input type="text" id="employeeProfileInput" required maxlength="32" placeholder="Enter your full name (e.g., Sarah K.)"
-              class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white" />
-          </div>
-
-          <!-- Quick Team Switcher Chips (populated from active team members on board) -->
-          <div id="recentTeamContainer" class="hidden">
-            <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Or tap your name from the team:</p>
-            <div id="recentTeamChips" class="flex flex-wrap gap-2"></div>
-          </div>
-
-          <button type="submit" class="w-full py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm transition active:scale-[0.99]">
-            Save & Continue
-          </button>
-        </form>
+        <!-- Predefined Employee Picker Grid -->
+        <div id="employeePickerGrid" class="grid grid-cols-2 gap-2.5 pb-2">
+          <!-- Populated dynamically from EMPLOYEES constant -->
+        </div>
       </div>
     </div>
 
@@ -511,6 +488,39 @@
     const tasksCollection = collection(db, "tasks");
 
     // -------------------------------------------------------------------------
+    // Predefined Backend Employee Roster & Distinct Avatar Styling
+    // -------------------------------------------------------------------------
+    const EMPLOYEES = ["Rahoof", "Fidha Nasreen", "Suhail", "Ashraf", "Anwar"];
+
+    const EMPLOYEE_THEMES = {
+      "Rahoof": {
+        gradient: "from-indigo-500 to-blue-600",
+        badgeBg: "bg-indigo-50 text-indigo-700 border-indigo-200",
+        role: "Team Member"
+      },
+      "Fidha Nasreen": {
+        gradient: "from-rose-500 to-pink-600",
+        badgeBg: "bg-rose-50 text-rose-700 border-rose-200",
+        role: "Team Member"
+      },
+      "Suhail": {
+        gradient: "from-emerald-500 to-teal-600",
+        badgeBg: "bg-emerald-50 text-emerald-700 border-emerald-200",
+        role: "Team Member"
+      },
+      "Ashraf": {
+        gradient: "from-amber-500 to-orange-600",
+        badgeBg: "bg-amber-50 text-amber-700 border-amber-200",
+        role: "Team Member"
+      },
+      "Anwar": {
+        gradient: "from-violet-500 to-purple-600",
+        badgeBg: "bg-violet-50 text-violet-700 border-violet-200",
+        role: "Team Member"
+      }
+    };
+
+    // -------------------------------------------------------------------------
     // Application State
     // -------------------------------------------------------------------------
     const STORAGE_KEY_USER = "taskity_employee_name";
@@ -523,12 +533,17 @@
       return `${year}-${month}-${day}`;
     }
 
+    // Validate stored user against predefined roster
+    const savedUser = localStorage.getItem(STORAGE_KEY_USER);
+    const validInitialUser = EMPLOYEES.includes(savedUser) ? savedUser : "";
+
     const state = {
       selectedDate: getLocalDateISO(new Date()), // YYYY-MM-DD (Day only, no time)
-      currentUser: localStorage.getItem(STORAGE_KEY_USER) || "",
-      filter: "all", // 'all' | 'mine' | 'working' | 'done'
+      currentUser: validInitialUser,
+      filter: "all", // 'all' | 'mine' | 'working' | 'done' | 'emp:Name'
       tasks: [],
       isFirestoreLive: false,
+      newTaskEmployee: validInitialUser || EMPLOYEES[0],
       newTaskPriority: "Normal",
       newTaskProgress: 0,
       pendingDeleteId: null
@@ -545,13 +560,15 @@
     }
 
     function getAvatarGradient(name) {
+      if (EMPLOYEE_THEMES[name]) {
+        return EMPLOYEE_THEMES[name].gradient;
+      }
       const gradients = [
         "from-indigo-500 to-violet-600",
         "from-emerald-500 to-teal-600",
         "from-amber-500 to-orange-600",
         "from-rose-500 to-pink-600",
-        "from-sky-500 to-blue-600",
-        "from-fuchsia-500 to-purple-600"
+        "from-sky-500 to-blue-600"
       ];
       let hash = 0;
       for (let i = 0; i < (name || "A").length; i++) {
@@ -640,20 +657,29 @@
       return [
         {
           id: "demo-1",
-          title: "Review sprint priorities & align daily deliverables",
-          employeeName: state.currentUser || "Alex Rivera",
+          title: "Review daily priorities & align team deliverables",
+          employeeName: "Rahoof",
           day: today,
           priority: "High",
           progress: 50,
-          createdAtMs: Date.now() - 2000
+          createdAtMs: Date.now() - 3000
         },
         {
           id: "demo-2",
-          title: "Update client onboarding checklist",
-          employeeName: "Maya Lin",
+          title: "Finalize client presentation slides & assets",
+          employeeName: "Fidha Nasreen",
           day: today,
           priority: "Quick Win",
           progress: 100,
+          createdAtMs: Date.now() - 2000
+        },
+        {
+          id: "demo-3",
+          title: "Complete backend workflow verification",
+          employeeName: "Suhail",
+          day: today,
+          priority: "Normal",
+          progress: 25,
           createdAtMs: Date.now() - 1000
         }
       ];
@@ -846,6 +872,9 @@
         filtered = filtered.filter(t => t.progress > 0 && t.progress < 100);
       } else if (state.filter === "done") {
         filtered = filtered.filter(t => t.progress === 100);
+      } else if (state.filter.startsWith("emp:")) {
+        const targetEmp = state.filter.slice(4);
+        filtered = filtered.filter(t => t.employeeName === targetEmp);
       }
 
       if (filtered.length === 0) {
@@ -972,15 +1001,59 @@
         avatarEl.textContent = getInitials(state.currentUser);
         avatarEl.className = `w-6 h-6 rounded-full bg-gradient-to-br ${getAvatarGradient(state.currentUser)} text-white text-[10px] font-extrabold flex items-center justify-center shadow-xs`;
       } else {
-        nameEl.textContent = "Set Name";
+        nameEl.textContent = "Select Staff";
         avatarEl.textContent = "?";
+        avatarEl.className = "w-6 h-6 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center shadow-xs";
       }
+    }
+
+    function renderFilterBar() {
+      const bar = document.getElementById("filterBar");
+      const dayTasks = state.tasks.filter(t => t.day === state.selectedDate);
+
+      const baseFilters = [
+        { id: "all", label: `All Team (${dayTasks.length})` },
+        { id: "mine", label: "My Tasks" },
+        { id: "working", label: "In Progress" },
+        { id: "done", label: "Completed" }
+      ];
+
+      const empFilters = EMPLOYEES.map(emp => {
+        const count = dayTasks.filter(t => t.employeeName === emp).length;
+        return {
+          id: `emp:${emp}`,
+          label: count > 0 ? `${emp} (${count})` : emp,
+          empName: emp
+        };
+      });
+
+      const allChips = [...baseFilters, ...empFilters];
+
+      bar.innerHTML = allChips.map(chip => {
+        const isActive = state.filter === chip.id;
+        const avatarDot = chip.empName
+          ? `<span class="w-4 h-4 rounded-full bg-gradient-to-br ${getAvatarGradient(chip.empName)} text-white text-[8px] font-extrabold inline-flex items-center justify-center">${getInitials(chip.empName)}</span>`
+          : "";
+
+        return `
+          <button onclick="setFilter('${chip.id.replace(/'/g, "\\'")}')"
+            class="filter-chip shrink-0 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition active:scale-95 ${
+              isActive
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50'
+            }">
+            ${avatarDot}
+            <span>${escapeHTML(chip.label)}</span>
+          </button>
+        `;
+      }).join('');
     }
 
     function renderAll() {
       renderUserHeader();
       renderDayScroller();
       renderSummary();
+      renderFilterBar();
       renderTasks();
     }
 
@@ -1048,33 +1121,58 @@
     window.setFilter = function(filterName) {
       if (filterName === "mine" && !state.currentUser) {
         openProfileModal();
-        showToast("Enter your name first to filter My Tasks", "info");
+        showToast("Select your profile first to filter My Tasks", "info");
         return;
       }
 
       state.filter = filterName;
-      document.querySelectorAll(".filter-chip").forEach(btn => {
-        const isMatch = btn.dataset.filter === filterName;
-        if (isMatch) {
-          btn.className = "filter-chip active shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-slate-900 text-white shadow-xs transition active:scale-95";
-        } else {
-          btn.className = "filter-chip shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50 transition active:scale-95";
-        }
-      });
+      renderFilterBar();
       renderTasks();
     };
 
     // -------------------------------------------------------------------------
     // Create Task Modal & Submission
     // -------------------------------------------------------------------------
+    function renderCreateEmployeeChips() {
+      const container = document.getElementById("createEmployeeChips");
+      const hiddenInput = document.getElementById("taskEmployeeInput");
+      hiddenInput.value = state.newTaskEmployee;
+
+      container.innerHTML = EMPLOYEES.map(emp => {
+        const isSelected = state.newTaskEmployee === emp;
+        const grad = getAvatarGradient(emp);
+        const initials = getInitials(emp);
+
+        return `
+          <button type="button" onclick="selectCreateEmployee('${emp.replace(/'/g, "\\'")}')"
+            class="inline-flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full text-xs font-bold transition active:scale-95 ${
+              isSelected
+                ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/25 ring-2 ring-indigo-600 ring-offset-1'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200/80 border border-slate-200/70'
+            }">
+            <span class="w-5 h-5 rounded-full bg-gradient-to-br ${grad} text-white text-[9px] font-extrabold flex items-center justify-center ${isSelected ? 'ring-1 ring-white/60' : ''}">
+              ${initials}
+            </span>
+            <span>${escapeHTML(emp)}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    window.selectCreateEmployee = function(empName) {
+      state.newTaskEmployee = empName;
+      renderCreateEmployeeChips();
+    };
+
     window.openCreateTaskModal = function() {
       const modal = document.getElementById("createTaskModal");
       const backdrop = document.getElementById("createBackdrop");
       const panel = document.getElementById("createPanel");
 
-      // Pre-fill date with currently selected day & employee with current user
+      // Pre-fill date with currently selected day & assignee with current active employee
       document.getElementById("taskDateInput").value = state.selectedDate;
-      document.getElementById("taskEmployeeInput").value = state.currentUser || "";
+      state.newTaskEmployee = state.currentUser || EMPLOYEES[0];
+      renderCreateEmployeeChips();
       document.getElementById("taskTitleInput").value = "";
       selectPriority("Normal");
       setNewTaskProgress(0);
@@ -1126,14 +1224,16 @@
     window.handleCreateTask = async function(e) {
       e.preventDefault();
       const title = document.getElementById("taskTitleInput").value.trim();
-      const employeeName = document.getElementById("taskEmployeeInput").value.trim();
+      const employeeName = state.newTaskEmployee;
       const day = document.getElementById("taskDateInput").value;
 
       if (!title || !employeeName || !day) return;
 
-      // Remember employee name for convenience
-      state.currentUser = employeeName;
-      localStorage.setItem(STORAGE_KEY_USER, employeeName);
+      // If no user is checked in yet, automatically check in as the selected employee
+      if (!state.currentUser) {
+        state.currentUser = employeeName;
+        localStorage.setItem(STORAGE_KEY_USER, employeeName);
+      }
 
       // Switch board view to the day the task was created for
       state.selectedDate = day;
@@ -1175,71 +1275,46 @@
     };
 
     // -------------------------------------------------------------------------
-    // Delete Task Flow
-    // -------------------------------------------------------------------------
-    window.promptDeleteTask = function(taskId, taskTitle) {
-      state.pendingDeleteId = taskId;
-      document.getElementById("deleteTaskTitlePreview").textContent = `"${taskTitle}"`;
-      const modal = document.getElementById("deleteConfirmModal");
-      modal.classList.remove("hidden");
-      modal.classList.add("flex");
-    };
-
-    window.closeDeleteModal = function() {
-      state.pendingDeleteId = null;
-      const modal = document.getElementById("deleteConfirmModal");
-      modal.classList.add("hidden");
-      modal.classList.remove("flex");
-    };
-
-    window.confirmDeleteTask = async function() {
-      const idToDelete = state.pendingDeleteId;
-      closeDeleteModal();
-      if (!idToDelete) return;
-
-      // Optimistic removal
-      state.tasks = state.tasks.filter(t => t.id !== idToDelete);
-      renderAll();
-      showToast("Task deleted", "info");
-
-      if (state.isFirestoreLive && !idToDelete.startsWith("demo-") && !idToDelete.startsWith("local-")) {
-        try {
-          await deleteDoc(doc(db, "tasks", idToDelete));
-        } catch (err) {
-          console.warn("Firestore delete fallback:", err);
-          saveLocalFallbackTasks(state.tasks);
-        }
-      } else {
-        saveLocalFallbackTasks(state.tasks);
-      }
-    };
-
-    // -------------------------------------------------------------------------
-    // Employee Profile Switcher Modal
+    // Employee Profile Switcher Modal (Predefined Roster Picker)
     // -------------------------------------------------------------------------
     window.openProfileModal = function() {
       const modal = document.getElementById("profileModal");
       const backdrop = document.getElementById("profileBackdrop");
       const panel = document.getElementById("profilePanel");
+      const grid = document.getElementById("employeePickerGrid");
 
-      document.getElementById("employeeProfileInput").value = state.currentUser || "";
+      const todayStr = getLocalDateISO(new Date());
 
-      // Collect distinct employee names currently on the board for 1-tap switching
-      const uniqueNames = [...new Set(state.tasks.map(t => t.employeeName).filter(Boolean))];
-      const recentContainer = document.getElementById("recentTeamContainer");
-      const chipsContainer = document.getElementById("recentTeamChips");
+      grid.innerHTML = EMPLOYEES.map((emp, idx) => {
+        const isCurrent = state.currentUser === emp;
+        const grad = getAvatarGradient(emp);
+        const initials = getInitials(emp);
+        const todayCount = state.tasks.filter(t => t.day === todayStr && t.employeeName === emp).length;
+        // Make the 5th card span full width on a 2-column grid for balanced visual symmetry
+        const spanClass = idx === EMPLOYEES.length - 1 && EMPLOYEES.length % 2 === 1 ? "col-span-2" : "";
 
-      if (uniqueNames.length > 0) {
-        recentContainer.classList.remove("hidden");
-        chipsContainer.innerHTML = uniqueNames.map(name => `
-          <button type="button" onclick="quickSelectEmployee('${escapeHTML(name).replace(/'/g, "\\'")}')"
-            class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-indigo-100 hover:text-indigo-700 text-xs font-bold text-slate-700 transition">
-            ${escapeHTML(name)}
+        return `
+          <button type="button" onclick="selectEmployeeProfile('${emp.replace(/'/g, "\\'")}')"
+            class="${spanClass} flex items-center gap-3 p-3 rounded-2xl border-2 text-left transition active:scale-[0.98] ${
+              isCurrent
+                ? 'border-indigo-600 bg-indigo-50/70 shadow-xs'
+                : 'border-slate-200/80 bg-white hover:border-indigo-300 hover:bg-slate-50'
+            }">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-br ${grad} text-white text-xs font-extrabold flex items-center justify-center shrink-0 shadow-xs">
+              ${initials}
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center justify-between gap-1">
+                <p class="text-sm font-extrabold text-slate-900 truncate">${escapeHTML(emp)}</p>
+                ${isCurrent ? '<span class="w-2 h-2 rounded-full bg-indigo-600 shrink-0"></span>' : ''}
+              </div>
+              <p class="text-[11px] font-medium text-slate-500">
+                ${todayCount} task${todayCount === 1 ? '' : 's'} today
+              </p>
+            </div>
           </button>
-        `).join('');
-      } else {
-        recentContainer.classList.add("hidden");
-      }
+        `;
+      }).join('');
 
       modal.classList.remove("hidden");
       requestAnimationFrame(() => {
@@ -1258,24 +1333,14 @@
       setTimeout(() => modal.classList.add("hidden"), 280);
     };
 
-    window.quickSelectEmployee = function(name) {
-      document.getElementById("employeeProfileInput").value = name;
+    window.selectEmployeeProfile = function(name) {
+      if (!EMPLOYEES.includes(name)) return;
       state.currentUser = name;
+      state.newTaskEmployee = name;
       localStorage.setItem(STORAGE_KEY_USER, name);
       closeProfileModal();
       renderAll();
       showToast(`Checked in as ${name}`, "success");
-    };
-
-    window.handleSaveEmployeeName = function(e) {
-      e.preventDefault();
-      const val = document.getElementById("employeeProfileInput").value.trim();
-      if (!val) return;
-      state.currentUser = val;
-      localStorage.setItem(STORAGE_KEY_USER, val);
-      closeProfileModal();
-      renderAll();
-      showToast(`Welcome, ${val}!`, "success");
     };
 
     // -------------------------------------------------------------------------
