@@ -3,47 +3,77 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  
-  <!-- PWA & Mobile Native Meta Tags -->
+  <meta name="theme-color" content="#0f172a" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Taskity" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="theme-color" content="#4f46e5" />
-  <meta name="description" content="Engaging day-based employee task manager with real-time progress tracking." />
-  
-  <title>Taskity — Team Daily Tasks</title>
+  <title>Taskity · Team Daily Flow</title>
 
-  <!-- Inline Dynamic Web App Manifest & Apple Touch Icon Setup -->
+  <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Canvas Confetti for 100% Task Completion -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- Dynamic PWA Manifest & App Icon -->
   <script>
     (function setupPWA() {
-      const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#4338ca"/></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#g)"/><path d="M156 266l68 68 136-152" fill="none" stroke="#ffffff" stroke-width="48" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-      const iconUrl = 'data:image/svg+xml;base64,' + btoa(svgIcon);
-
-      // Set Favicon & Apple Touch Icon
-      const linkIcon = document.createElement('link');
-      linkIcon.rel = 'icon';
-      linkIcon.href = iconUrl;
-      document.head.appendChild(linkIcon);
+      const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+        <defs>
+          <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#4f46e5"/>
+            <stop offset="100%" stop-color="#06b6d4"/>
+          </linearGradient>
+        </defs>
+        <rect width="512" height="512" rx="120" fill="url(#g)"/>
+        <path d="M150 265 L220 335 L365 180" fill="none" stroke="#ffffff" stroke-width="46" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>`;
+      const iconUrl = 'data:image/svg+xml;base64,' + btoa(iconSvg);
 
       const appleIcon = document.createElement('link');
       appleIcon.rel = 'apple-touch-icon';
       appleIcon.href = iconUrl;
       document.head.appendChild(appleIcon);
 
-      // Dynamic Manifest Blob for GitHub Pages / Static Hosting Installability
       const manifest = {
-        name: "Taskity - Employee Daily Tasks",
-        short_name: "Taskity",
-        description: "Day-focused employee task tracker with live progress sync.",
-        start_url: "./",
-        display: "standalone",
-        background_color: "#f8fafc",
-        theme_color: "#4f46e5",
-        orientation: "portrait",
+        name: 'Taskity · Team Daily Flow',
+        short_name: 'Taskity',
+        description: 'Day-based employee task creation & live progress tracker',
+        start_url: './',
+        display: 'standalone',
+        background_color: '#0f172a',
+        theme_color: '#4f46e5',
+        orientation: 'portrait',
         icons: [
-          { src: iconUrl, sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" },
-          { src: iconUrl, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
+          { src: iconUrl, sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
+          { src: iconUrl, sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' }
         ]
       };
       const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
@@ -54,57 +84,17 @@
     })();
   </script>
 
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Google Fonts: Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-
-  <!-- Canvas Confetti for 100% Task Completion Celebration -->
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
-          },
-          colors: {
-            brand: {
-              50: '#eef2ff',
-              100: '#e0e7ff',
-              500: '#6366f1',
-              600: '#4f46e5',
-              700: '#4338ca',
-            }
-          }
-        }
-      }
-    }
-  </script>
-
   <style>
-    /* Custom Mobile PWA Styling & Smooth Micro-interactions */
     * {
       -webkit-tap-highlight-color: transparent;
       box-sizing: border-box;
     }
-
     body {
-      font-family: 'Inter', sans-serif;
       background-color: #e2e8f0;
       margin: 0;
       padding: 0;
       overscroll-behavior-y: none;
     }
-
-    /* Hide scrollbars for horizontal date & filter pills */
     .no-scrollbar::-webkit-scrollbar {
       display: none;
     }
@@ -112,352 +102,277 @@
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
-
-    /* App Shell for Desktop Preview & Full-screen Mobile */
-    .app-shell {
-      max-width: 480px;
-      margin: 0 auto;
-      min-height: 100dvh;
-      background-color: #f8fafc;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.18);
-    }
-
-    @media (min-width: 500px) {
-      body {
-        padding: 16px 0;
-        background: radial-gradient(circle at top left, #e0e7ff, #cbd5e1);
-      }
-      .app-shell {
-        min-height: calc(100dvh - 32px);
-        max-height: calc(100dvh - 32px);
-        border-radius: 36px;
-        overflow: hidden;
-        border: 6px solid #ffffff;
-      }
-    }
-
-    /* Safe Area Insets */
-    .safe-top {
-      padding-top: max(16px, env(safe-area-inset-top));
-    }
-    .safe-bottom {
-      padding-bottom: max(20px, env(safe-area-inset-bottom));
-    }
-
-    /* Custom Tactile Range Slider */
     input[type="range"].progress-slider {
       -webkit-appearance: none;
       appearance: none;
       width: 100%;
-      height: 8px;
+      height: 10px;
       border-radius: 999px;
-      background: #e2e8f0;
       outline: none;
-      cursor: pointer;
+      transition: background 0.15s ease;
     }
-
     input[type="range"].progress-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: 22px;
-      height: 22px;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
       background: #ffffff;
       border: 3px solid #4f46e5;
-      box-shadow: 0 2px 6px rgba(79, 70, 229, 0.35);
+      box-shadow: 0 3px 10px rgba(79, 70, 229, 0.35);
       cursor: pointer;
-      transition: transform 0.15s ease, border-color 0.2s ease;
+      transition: transform 0.15s ease;
     }
-
     input[type="range"].progress-slider::-webkit-slider-thumb:active {
-      transform: scale(1.2);
+      transform: scale(1.18);
     }
-
-    input[type="range"].progress-slider.done-slider::-webkit-slider-thumb {
-      border-color: #10b981;
-      box-shadow: 0 2px 6px rgba(16, 185, 129, 0.35);
+    input[type="range"].progress-slider::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 3px solid #4f46e5;
+      box-shadow: 0 3px 10px rgba(79, 70, 229, 0.35);
+      cursor: pointer;
     }
-
-    /* Smooth Card Entrance */
-    @keyframes slideUpFade {
-      from {
-        opacity: 0;
-        transform: translateY(12px) scale(0.98);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
+    .safe-top {
+      padding-top: max(1rem, env(safe-area-inset-top));
     }
-
-    .task-card-anim {
-      animation: slideUpFade 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    .safe-bottom {
+      padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
     }
-
-    /* Bottom Sheet Backdrop & Drawer */
-    .sheet-backdrop {
-      transition: opacity 0.25s ease;
+    .drawer-safe-bottom {
+      padding-bottom: max(1.75rem, calc(env(safe-area-inset-bottom) + 1rem));
     }
-    .sheet-panel {
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    @keyframes slideUp {
+      from { transform: translateY(24px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .sheet-enter {
+      animation: slideUp 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes popIn {
+      0% { transform: scale(0.96); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .card-enter {
+      animation: popIn 0.22s ease-out forwards;
     }
   </style>
 </head>
-<body class="text-slate-800 antialiased selection:bg-brand-100 selection:text-brand-700">
+<body class="font-sans text-slate-800 antialiased flex justify-center min-h-screen">
 
-  <!-- Main Mobile PWA Container -->
-  <div class="app-shell" id="appShell">
+  <!-- Mobile App Shell -->
+  <div id="app" class="w-full max-w-[480px] bg-slate-50 min-h-screen shadow-2xl relative flex flex-col overflow-x-hidden">
 
-    <!-- Glassmorphism Sticky Top Header -->
-    <header class="sticky top-0 z-30 bg-white/85 backdrop-blur-md border-b border-slate-200/70 safe-top px-5 pb-3">
-      <div class="flex items-center justify-between gap-2">
-        <!-- Brand & Live Sync Pill -->
+    <!-- Top Dark Gradient Header -->
+    <header class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white safe-top px-5 pb-6 rounded-b-[2rem] shadow-lg relative z-10">
+      <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/25">
-            <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-cyan-400 flex items-center justify-center shadow-md shadow-indigo-500/30">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
           </div>
           <div>
-            <div class="flex items-center gap-2">
-              <h1 class="text-lg font-extrabold tracking-tight text-slate-900 leading-none">Taskity</h1>
-              <span id="syncBadge" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200/80 transition-colors">
-                <span id="syncDot" class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                <span id="syncText">Connecting...</span>
-              </span>
+            <h1 class="font-display font-extrabold text-lg tracking-tight leading-none">Taskity</h1>
+            <div class="flex items-center gap-1.5 mt-1">
+              <span id="syncDot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+              <span id="syncLabel" class="text-[11px] text-slate-300 font-medium">Connecting Firestore...</span>
             </div>
-            <p id="headerMonthLabel" class="text-xs font-medium text-slate-500 mt-0.5">Daily Team Board</p>
           </div>
         </div>
 
-        <!-- Right Controls: Install PWA + Active Employee Switcher -->
+        <!-- Active Employee Pill & PWA Install Trigger -->
         <div class="flex items-center gap-2">
-          <button id="installPwaBtn" onclick="triggerInstallPWA()" class="hidden items-center gap-1 px-2.5 py-1.5 rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold transition active:scale-95" title="Install App">
-            <i data-lucide="download" class="w-3.5 h-3.5"></i>
-            <span>App</span>
+          <button id="installBtn" class="hidden bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-white/15 transition flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+            </svg>
+            App
           </button>
 
-          <button onclick="openProfileModal()" class="flex items-center gap-2 pl-1.5 pr-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200/80 border border-slate-200/80 transition active:scale-95" title="Switch Employee">
-            <div id="currentUserAvatar" class="w-6 h-6 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center shadow-xs">
+          <button id="profileBtn" class="flex items-center gap-2 bg-white/10 hover:bg-white/15 active:scale-95 transition pl-1.5 pr-3 py-1 rounded-full border border-white/15">
+            <div id="userAvatarBadge" class="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center text-xs font-bold text-slate-950 shadow-inner">
               ?
             </div>
-            <span id="currentUserNameDisplay" class="text-xs font-semibold text-slate-700 max-w-[92px] truncate">Select Staff</span>
-            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+            <span id="userNameBadge" class="text-xs font-semibold text-white max-w-[100px] truncate">Select Staff</span>
           </button>
         </div>
       </div>
 
-      <!-- Day-Only Horizontal Scrollable Date Picker Strip -->
-      <div class="mt-3.5 flex items-center gap-2">
-        <div id="dayScroller" class="flex-1 flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
-          <!-- Populated dynamically with Today, Tomorrow, and upcoming days -->
+      <!-- Daily Team Pulse Card -->
+      <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 mb-4">
+        <div class="flex items-end justify-between mb-2">
+          <div>
+            <p class="text-[11px] uppercase tracking-wider text-indigo-200 font-semibold" id="selectedDaySubtitle">Today's Team Pulse</p>
+            <h2 class="font-display text-xl font-bold text-white mt-0.5" id="selectedDateHeading">Loading day...</h2>
+          </div>
+          <div class="text-right">
+            <span id="dayCompletionPct" class="font-display text-2xl font-extrabold text-cyan-300">0%</span>
+            <p id="dayTaskFraction" class="text-[11px] text-slate-300">0 of 0 done</p>
+          </div>
         </div>
+        <div class="w-full h-2.5 bg-slate-900/60 rounded-full overflow-hidden">
+          <div id="dayMasterBar" class="h-full bg-gradient-to-r from-indigo-400 via-cyan-400 to-emerald-400 rounded-full transition-all duration-500" style="width: 0%"></div>
+        </div>
+      </div>
 
-        <!-- Calendar Jump Button (Date-only input, zero time fields) -->
-        <label class="relative shrink-0 w-11 h-14 rounded-2xl bg-slate-100 hover:bg-indigo-50 border border-slate-200/80 flex flex-col items-center justify-center cursor-pointer text-slate-600 hover:text-indigo-600 transition active:scale-95" title="Pick any day">
-          <i data-lucide="calendar" class="w-4 h-4"></i>
-          <span class="text-[9px] font-bold uppercase mt-1">Jump</span>
-          <input type="date" id="jumpDateInput" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />
+      <!-- Day-Only Horizontal Strip -->
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-semibold text-slate-300">Select Day</span>
+        <label class="text-xs font-semibold text-cyan-300 hover:text-cyan-200 flex items-center gap-1 cursor-pointer">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          <span>Jump</span>
+          <input type="date" id="nativeDatePicker" class="sr-only" />
         </label>
+      </div>
+      <div id="dayStrip" class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+        <!-- Day pills injected by JS -->
       </div>
     </header>
 
-    <!-- Scrollable Main Content -->
-    <main class="flex-1 overflow-y-auto px-5 pt-4 pb-28 space-y-4">
-
-      <!-- Daily Team Progress Summary Card -->
-      <section class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-indigo-600 to-violet-700 p-5 text-white shadow-lg shadow-indigo-600/20">
-        <!-- Decorative background circles -->
-        <div class="absolute -right-6 -top-6 w-28 h-28 rounded-full bg-white/10 pointer-events-none"></div>
-        <div class="absolute right-10 -bottom-10 w-24 h-24 rounded-full bg-indigo-400/20 pointer-events-none"></div>
-
-        <div class="relative flex items-center justify-between gap-4">
-          <div class="space-y-1">
-            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/15 backdrop-blur-xs text-[11px] font-semibold text-indigo-100">
-              <i data-lucide="calendar-days" class="w-3 h-3"></i>
-              <span id="selectedDayFullLabel">Today</span>
-            </div>
-            <h2 class="text-xl font-extrabold tracking-tight" id="summaryHeadline">Team Momentum</h2>
-            <p class="text-xs text-indigo-100/90 font-medium" id="summarySubtext">0 of 0 tasks completed</p>
-          </div>
-
-          <!-- Circular SVG Progress Ring -->
-          <div class="relative w-16 h-16 shrink-0 flex items-center justify-center">
-            <svg class="w-16 h-16 -rotate-90" viewBox="0 0 64 64">
-              <circle cx="32" cy="32" r="26" stroke="rgba(255,255,255,0.2)" stroke-width="6" fill="none" />
-              <circle id="summaryRingCircle" cx="32" cy="32" r="26" stroke="#34d399" stroke-width="6" stroke-linecap="round" fill="none"
-                stroke-dasharray="163.36" stroke-dashoffset="163.36" style="transition: stroke-dashoffset 0.6s cubic-bezier(0.16, 1, 0.3, 1);" />
-            </svg>
-            <span id="summaryPercentText" class="absolute text-sm font-extrabold tracking-tight">0%</span>
-          </div>
-        </div>
-      </section>
-
-      <!-- Filter Pills -->
-      <section class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5" id="filterBar">
-        <!-- Populated dynamically with All Team, My Tasks, Statuses & Predefined Employees -->
-      </section>
-
-      <!-- Task List Container -->
-      <section id="taskListContainer" class="space-y-3">
-        <!-- Skeleton Loader initially -->
-        <div class="animate-pulse space-y-3" id="loadingSkeleton">
-          <div class="h-32 bg-white rounded-3xl border border-slate-200/60 p-4"></div>
-          <div class="h-32 bg-white rounded-3xl border border-slate-200/60 p-4"></div>
-        </div>
-      </section>
-
-    </main>
-
-    <!-- Floating Action Button (FAB) & Bottom Bar -->
-    <div class="absolute bottom-0 inset-x-0 z-20 pointer-events-none safe-bottom px-5 flex items-center justify-between">
-      <!-- Quick Day Reset Pill (shows when viewing non-today date) -->
-      <button id="backToTodayBtn" onclick="jumpToToday()" class="pointer-events-auto hidden items-center gap-1.5 px-4 py-3 rounded-full bg-white/95 backdrop-blur-md text-slate-700 border border-slate-200 shadow-lg text-xs font-bold hover:bg-slate-50 transition active:scale-95">
-        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-indigo-600"></i>
-        <span>Back to Today</span>
+    <!-- Filter Chips (Status + Team Roster) -->
+    <div class="px-5 pt-4 pb-2 flex items-center gap-2 overflow-x-auto no-scrollbar" id="filterBar">
+      <button data-filter="all" class="filter-chip active whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold bg-slate-900 text-white shadow-sm transition">
+        All Team
       </button>
-      <div id="fabSpacer" class="flex-1"></div>
-
-      <!-- Primary Add Task FAB -->
-      <button onclick="openCreateTaskModal()" class="pointer-events-auto flex items-center gap-2 pl-4 pr-5 py-3.5 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold text-sm shadow-xl shadow-indigo-600/35 transition transform hover:scale-[1.02] active:scale-95">
-        <i data-lucide="plus" class="w-5 h-5 stroke-[2.5]"></i>
-        <span>New Task</span>
+      <button data-filter="mine" class="filter-chip whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition">
+        My Tasks
       </button>
+      <button data-filter="active" class="filter-chip whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition">
+        In Progress
+      </button>
+      <button data-filter="done" class="filter-chip whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition">
+        Completed
+      </button>
+      <div class="h-4 w-[1px] bg-slate-300 shrink-0 mx-0.5"></div>
+      <div id="employeeFilterChips" class="flex items-center gap-2">
+        <!-- Team member filter chips injected by JS -->
+      </div>
     </div>
 
-    <!-- Custom Non-blocking Toast Notification -->
-    <div id="toastContainer" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 pointer-events-none flex flex-col items-center gap-2 w-full max-w-[360px] px-4"></div>
+    <!-- Main Task Feed -->
+    <main id="taskListContainer" class="flex-1 px-5 pt-2 pb-28 space-y-3.5">
+      <div id="loadingSkeleton" class="space-y-3 pt-2">
+        <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm animate-pulse">
+          <div class="h-4 bg-slate-200 rounded w-1/3 mb-3"></div>
+          <div class="h-5 bg-slate-200 rounded w-3/4 mb-4"></div>
+          <div class="h-3 bg-slate-100 rounded w-full"></div>
+        </div>
+      </div>
+    </main>
 
-    <!-- ===================================================================== -->
-    <!-- BOTTOM SHEET MODAL 1: CREATE NEW TASK (DAY + TASK ONLY, NO TIME)      -->
-    <!-- ===================================================================== -->
-    <div id="createTaskModal" class="fixed inset-0 z-40 hidden">
-      <div onclick="closeCreateTaskModal()" class="sheet-backdrop absolute inset-0 bg-slate-900/45 backdrop-blur-xs opacity-0" id="createBackdrop"></div>
-      <div id="createPanel" class="sheet-panel absolute bottom-0 inset-x-0 mx-auto max-w-[480px] bg-white rounded-t-3xl p-6 safe-bottom shadow-2xl translate-y-full">
-        <div class="w-10 h-1.5 bg-slate-200 rounded-full mx-auto mb-5"></div>
-        
-        <div class="flex items-center justify-between mb-4">
+    <!-- Floating Action Button (FAB) -->
+    <div class="fixed bottom-0 left-0 right-0 flex justify-center pointer-events-none z-20 safe-bottom">
+      <div class="w-full max-w-[480px] px-5 flex justify-end">
+        <button id="openCreateModalBtn" class="pointer-events-auto group flex items-center gap-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 active:scale-95 text-white font-display font-bold text-sm px-5 py-3.5 rounded-2xl shadow-xl shadow-indigo-600/30 transition-all">
+          <svg class="w-5 h-5 transition-transform group-hover:rotate-90" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          <span>New Task</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Floating Bottom Drawer: Create Task (Refined Spacing & Inset Margins) -->
+    <div id="createTaskModal" class="fixed inset-0 z-40 hidden items-end justify-center bg-slate-950/55 backdrop-blur-[2px] px-3 pb-3 sm:px-4 sm:pb-5">
+      <div class="w-full max-w-[452px] bg-white rounded-[28px] px-6 pt-4 drawer-safe-bottom shadow-2xl border border-slate-100 sheet-enter max-h-[88vh] overflow-y-auto">
+        <div class="w-11 h-1.5 bg-slate-200 rounded-full mx-auto mb-5"></div>
+        <div class="flex items-start justify-between gap-3 mb-5">
           <div>
-            <h3 class="text-lg font-extrabold text-slate-900">Assign Daily Task</h3>
-            <p class="text-xs text-slate-500">Pick the day and task — no hourly schedules needed.</p>
+            <h3 class="font-display text-xl font-extrabold text-slate-900 leading-tight">Assign Daily Task</h3>
+            <p class="text-xs text-slate-500 mt-1">Pick the day and employee — no hourly schedules needed.</p>
           </div>
-          <button onclick="closeCreateTaskModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200">
-            <i data-lucide="x" class="w-4 h-4"></i>
+          <button id="closeCreateModalBtn" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200 shrink-0 transition">
+            ✕
           </button>
         </div>
 
-        <form id="createTaskForm" onsubmit="handleCreateTask(event)" class="space-y-4">
-          <!-- Task Title -->
+        <form id="createTaskForm" class="space-y-5">
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">What needs to be done?</label>
-            <input type="text" id="taskTitleInput" required maxlength="140" placeholder="e.g., Finalize Q4 client deck & send review"
-              class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" />
-          <!-- Two-Column Row: Predefined Employee Selector & Assigned Day (Date Only) -->
-          <div class="space-y-3">
-            <div>
-              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Assign To Employee</label>
-              <div id="createEmployeeChips" class="flex flex-wrap gap-2">
-                <!-- Populated dynamically from EMPLOYEES constant -->
-              </div>
-              <input type="hidden" id="taskEmployeeInput" required />
-            </div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">What needs to be done?</label>
+            <input type="text" id="taskTitleInput" required placeholder="e.g., Audit Q4 inventory & update sheet"
+              class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" />
+          </div>
 
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Assign To Employee</label>
+            <input type="hidden" id="taskAssigneeInput" required />
+            <div id="assigneePickerGrid" class="grid grid-cols-2 gap-2.5">
+              <!-- Backend employee chips injected here -->
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3.5">
             <div>
-              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Target Day</label>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Target Day</label>
               <input type="date" id="taskDateInput" required
-                class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" />
+                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Priority</label>
+              <select id="taskPriorityInput"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+                <option value="normal">⚡ Normal</option>
+                <option value="high">🔥 High Focus</option>
+                <option value="low">✨ Quick Win</option>
+              </select>
             </div>
           </div>
 
-          <!-- Priority Tag Selector -->
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Priority / Focus Tag</label>
-            <div class="grid grid-cols-3 gap-2" id="prioritySelector">
-              <button type="button" data-priority="Normal" onclick="selectPriority('Normal')" class="prio-btn active py-2 px-3 rounded-xl border-2 border-indigo-600 bg-indigo-50 text-indigo-700 text-xs font-bold flex items-center justify-center gap-1.5 transition">
-                <span>⚡</span> Normal
-              </button>
-              <button type="button" data-priority="High" onclick="selectPriority('High')" class="prio-btn py-2 px-3 rounded-xl border border-slate-200 bg-white text-slate-600 text-xs font-bold flex items-center justify-center gap-1.5 transition">
-                <span>🔥</span> High Priority
-              </button>
-              <button type="button" data-priority="Quick Win" onclick="selectPriority('Quick Win')" class="prio-btn py-2 px-3 rounded-xl border border-slate-200 bg-white text-slate-600 text-xs font-bold flex items-center justify-center gap-1.5 transition">
-                <span>✨</span> Quick Win
-              </button>
-            </div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Notes / Deliverables (Optional)</label>
+            <textarea id="taskNotesInput" rows="2" placeholder="Add context, links, or checklist details..."
+              class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"></textarea>
           </div>
 
-          <!-- Initial Progress Selector -->
-          <div>
-            <div class="flex items-center justify-between mb-1.5">
-              <label class="text-xs font-bold text-slate-700 uppercase tracking-wider">Starting Progress</label>
-              <span id="newTaskProgressLabel" class="text-xs font-extrabold text-indigo-600">0% (To Do)</span>
-            </div>
-            <div class="grid grid-cols-4 gap-2">
-              <button type="button" onclick="setNewTaskProgress(0)" class="init-prog-btn active py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold transition" data-val="0">To Do</button>
-              <button type="button" onclick="setNewTaskProgress(25)" class="init-prog-btn py-2 rounded-xl bg-slate-100 text-slate-600 text-xs font-bold transition" data-val="25">25%</button>
-              <button type="button" onclick="setNewTaskProgress(50)" class="init-prog-btn py-2 rounded-xl bg-slate-100 text-slate-600 text-xs font-bold transition" data-val="50">Working</button>
-              <button type="button" onclick="setNewTaskProgress(100)" class="init-prog-btn py-2 rounded-xl bg-slate-100 text-slate-600 text-xs font-bold transition" data-val="100">Done</button>
-            </div>
+          <div class="pt-1">
+            <button type="submit" id="submitTaskBtn"
+              class="w-full py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-display font-bold text-sm shadow-lg shadow-indigo-600/25 transition">
+              Create & Assign Task
+            </button>
           </div>
-
-          <!-- Submit Button -->
-          <button type="submit" id="submitTaskBtn" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold text-sm shadow-lg shadow-indigo-600/25 transition active:scale-[0.99] mt-2">
-            Add Task to Board
-          </button>
         </form>
       </div>
     </div>
 
-    <!-- ===================================================================== -->
-    <!-- BOTTOM SHEET MODAL 2: EMPLOYEE PROFILE / QUICK SWITCHER               -->
-    <!-- ===================================================================== -->
-    <div id="profileModal" class="fixed inset-0 z-40 hidden">
-      <div onclick="closeProfileModal()" class="sheet-backdrop absolute inset-0 bg-slate-900/45 backdrop-blur-xs opacity-0" id="profileBackdrop"></div>
-      <div id="profilePanel" class="sheet-panel absolute bottom-0 inset-x-0 mx-auto max-w-[480px] bg-white rounded-t-3xl p-6 safe-bottom shadow-2xl translate-y-full">
-        <div class="w-10 h-1.5 bg-slate-200 rounded-full mx-auto mb-5"></div>
-        
-        <div class="flex items-center justify-between mb-4">
+    <!-- Floating Bottom Drawer: Employee Check-In Picker (Matching Inset Margins) -->
+    <div id="profileModal" class="fixed inset-0 z-50 hidden items-end justify-center bg-slate-950/60 backdrop-blur-[2px] px-3 pb-3 sm:px-4 sm:pb-5">
+      <div class="w-full max-w-[452px] bg-white rounded-[28px] px-6 pt-4 drawer-safe-bottom shadow-2xl border border-slate-100 sheet-enter">
+        <div class="w-11 h-1.5 bg-slate-200 rounded-full mx-auto mb-5"></div>
+        <div class="flex items-start justify-between gap-3 mb-1.5">
           <div>
-            <h3 class="text-lg font-extrabold text-slate-900">Select Your Profile</h3>
-            <p class="text-xs text-slate-500">Tap your name to check in and manage your daily tasks.</p>
+            <h3 class="font-display text-xl font-extrabold text-slate-900">Employee Check-In</h3>
+            <p class="text-xs text-slate-500 mt-1">Tap your name to track your tasks and update progress.</p>
           </div>
-          <button onclick="closeProfileModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200">
-            <i data-lucide="x" class="w-4 h-4"></i>
+          <button id="closeProfileModalBtn" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200 shrink-0 transition">
+            ✕
           </button>
         </div>
 
-        <!-- Predefined Employee Picker Grid -->
-        <div id="employeePickerGrid" class="grid grid-cols-2 gap-2.5 pb-2">
-          <!-- Populated dynamically from EMPLOYEES constant -->
+        <div id="employeeCheckInList" class="space-y-2.5 mt-4">
+          <!-- Roster selection buttons injected here -->
         </div>
       </div>
     </div>
 
-    <!-- ===================================================================== -->
-    <!-- CONFIRM DELETE MODAL (Replaces browser confirm())                     -->
-    <!-- ===================================================================== -->
-    <div id="deleteConfirmModal" class="fixed inset-0 z-50 hidden items-center justify-center p-5">
-      <div onclick="closeDeleteModal()" class="absolute inset-0 bg-slate-900/50 backdrop-blur-xs"></div>
-      <div class="relative bg-white rounded-3xl p-6 max-w-xs w-full shadow-2xl text-center space-y-4">
-        <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
-          <i data-lucide="trash-2" class="w-6 h-6"></i>
-        </div>
-        <div>
-          <h4 class="text-base font-extrabold text-slate-900">Delete this task?</h4>
-          <p class="text-xs text-slate-500 mt-1" id="deleteTaskTitlePreview">This action cannot be undone.</p>
-        </div>
-        <div class="grid grid-cols-2 gap-2.5 pt-1">
-          <button onclick="closeDeleteModal()" class="py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition">Cancel</button>
-          <button onclick="confirmDeleteTask()" class="py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-md shadow-rose-600/20 transition">Delete</button>
-        </div>
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 transform -translate-y-2">
+      <div class="bg-slate-900/95 text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-xl border border-white/10 flex items-center gap-2">
+        <span id="toastIcon">✅</span>
+        <span id="toastMsg">Saved</span>
       </div>
     </div>
 
   </div>
 
-  <!-- ======================================================================= -->
-  <!-- FIREBASE FIRESTORE & APPLICATION LOGIC (ES MODULE)                      -->
-  <!-- ======================================================================= -->
+  <!-- Firebase & App Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
@@ -468,10 +383,47 @@
       deleteDoc,
       doc,
       onSnapshot,
-      serverTimestamp
+      query,
+      orderBy
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // Exact Firebase Configuration provided
+    // =========================================================================
+    // 1. BACKEND TEAM ROSTER CONFIGURATION
+    // =========================================================================
+    const EMPLOYEES = [
+      "Rahoof",
+      "Fidha Nasreen",
+      "Suhail",
+      "Ashraf",
+      "Anwar"
+    ];
+
+    const EMPLOYEE_THEMES = {
+      "Rahoof": {
+        bg: "from-indigo-500 to-blue-600",
+        pillBg: "bg-indigo-50 text-indigo-700 border-indigo-200"
+      },
+      "Fidha Nasreen": {
+        bg: "from-fuchsia-500 to-pink-600",
+        pillBg: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200"
+      },
+      "Suhail": {
+        bg: "from-emerald-500 to-teal-600",
+        pillBg: "bg-emerald-50 text-emerald-700 border-emerald-200"
+      },
+      "Ashraf": {
+        bg: "from-amber-500 to-orange-600",
+        pillBg: "bg-amber-50 text-amber-700 border-amber-200"
+      },
+      "Anwar": {
+        bg: "from-cyan-500 to-sky-600",
+        pillBg: "bg-cyan-50 text-cyan-700 border-cyan-200"
+      }
+    };
+
+    // =========================================================================
+    // 2. YOUR FIREBASE CREDENTIALS (taskity-20ead)
+    // =========================================================================
     const firebaseConfig = {
       apiKey: "AIzaSyCb28duF-VMO9c3dRmKuZ8DnQ2YGZjlhuo",
       authDomain: "taskity-20ead.firebaseapp.com",
@@ -482,506 +434,633 @@
       measurementId: "G-GSTNQ7DBQV"
     };
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const tasksCollection = collection(db, "tasks");
-
-    // -------------------------------------------------------------------------
-    // Predefined Backend Employee Roster & Distinct Avatar Styling
-    // -------------------------------------------------------------------------
-    const EMPLOYEES = ["Rahoof", "Fidha Nasreen", "Suhail", "Ashraf", "Anwar"];
-
-    const EMPLOYEE_THEMES = {
-      "Rahoof": {
-        gradient: "from-indigo-500 to-blue-600",
-        badgeBg: "bg-indigo-50 text-indigo-700 border-indigo-200",
-        role: "Team Member"
-      },
-      "Fidha Nasreen": {
-        gradient: "from-rose-500 to-pink-600",
-        badgeBg: "bg-rose-50 text-rose-700 border-rose-200",
-        role: "Team Member"
-      },
-      "Suhail": {
-        gradient: "from-emerald-500 to-teal-600",
-        badgeBg: "bg-emerald-50 text-emerald-700 border-emerald-200",
-        role: "Team Member"
-      },
-      "Ashraf": {
-        gradient: "from-amber-500 to-orange-600",
-        badgeBg: "bg-amber-50 text-amber-700 border-amber-200",
-        role: "Team Member"
-      },
-      "Anwar": {
-        gradient: "from-violet-500 to-purple-600",
-        badgeBg: "bg-violet-50 text-violet-700 border-violet-200",
-        role: "Team Member"
-      }
+    // =========================================================================
+    // 3. STATE MANAGEMENT
+    // =========================================================================
+    const formatDateISO = (dateObj) => {
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
     };
 
-    // -------------------------------------------------------------------------
-    // Application State
-    // -------------------------------------------------------------------------
-    const STORAGE_KEY_USER = "taskity_employee_name";
-    const STORAGE_KEY_LOCAL_TASKS = "taskity_local_fallback_tasks";
+    const todayISO = formatDateISO(new Date());
 
-    function getLocalDateISO(dateObj = new Date()) {
-      const year = dateObj.getFullYear();
-      const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-      const day = String(dateObj.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
+    // Purge any cached dummy tasks from previous builds
+    function purgeLegacyDemoTasks() {
+      try {
+        const raw = localStorage.getItem('taskity_fallback_tasks');
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        const legacyNames = ['Alex Rivera', 'Maya Lin', 'Jordan Vance', 'Samira Patel'];
+        const cleaned = parsed.filter(t =>
+          !String(t.id || '').startsWith('demo-') &&
+          !legacyNames.includes(t.assignee)
+        );
+        localStorage.setItem('taskity_fallback_tasks', JSON.stringify(cleaned));
+      } catch (e) {
+        localStorage.removeItem('taskity_fallback_tasks');
+      }
     }
+    purgeLegacyDemoTasks();
 
-    // Validate stored user against predefined roster
-    const savedUser = localStorage.getItem(STORAGE_KEY_USER);
-    const validInitialUser = EMPLOYEES.includes(savedUser) ? savedUser : "";
+    const savedUser = localStorage.getItem('taskity_user');
+    const validSavedUser = EMPLOYEES.includes(savedUser) ? savedUser : '';
 
-    const state = {
-      selectedDate: getLocalDateISO(new Date()), // YYYY-MM-DD (Day only, no time)
-      currentUser: validInitialUser,
-      filter: "all", // 'all' | 'mine' | 'working' | 'done' | 'emp:Name'
+    let state = {
+      selectedDate: todayISO,
+      filter: 'all',
+      currentUser: validSavedUser,
+      selectedAssigneeForNewTask: validSavedUser || EMPLOYEES[0],
       tasks: [],
-      isFirestoreLive: false,
-      newTaskEmployee: validInitialUser || EMPLOYEES[0],
-      newTaskPriority: "Normal",
-      newTaskProgress: 0,
-      pendingDeleteId: null
+      useLocalFallback: false,
+      isLoading: true
     };
 
-    // -------------------------------------------------------------------------
-    // Utility Helpers
-    // -------------------------------------------------------------------------
+    let db = null;
+    let tasksCollection = null;
+
+    // =========================================================================
+    // 4. DOM ELEMENTS
+    // =========================================================================
+    const dayStrip = document.getElementById('dayStrip');
+    const selectedDateHeading = document.getElementById('selectedDateHeading');
+    const selectedDaySubtitle = document.getElementById('selectedDaySubtitle');
+    const dayCompletionPct = document.getElementById('dayCompletionPct');
+    const dayTaskFraction = document.getElementById('dayTaskFraction');
+    const dayMasterBar = document.getElementById('dayMasterBar');
+    const taskListContainer = document.getElementById('taskListContainer');
+    const nativeDatePicker = document.getElementById('nativeDatePicker');
+    const syncDot = document.getElementById('syncDot');
+    const syncLabel = document.getElementById('syncLabel');
+    const userAvatarBadge = document.getElementById('userAvatarBadge');
+    const userNameBadge = document.getElementById('userNameBadge');
+    const employeeFilterChips = document.getElementById('employeeFilterChips');
+    const assigneePickerGrid = document.getElementById('assigneePickerGrid');
+    const taskAssigneeInput = document.getElementById('taskAssigneeInput');
+    const employeeCheckInList = document.getElementById('employeeCheckInList');
+
+    // Modals
+    const createTaskModal = document.getElementById('createTaskModal');
+    const profileModal = document.getElementById('profileModal');
+
+    // =========================================================================
+    // 5. HELPERS (INITIALS, COLORS, DATES, TOASTS)
+    // =========================================================================
     function getInitials(name) {
-      if (!name) return "?";
-      const parts = name.trim().split(/\s+/);
-      if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
-      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+      if (!name) return '?';
+      return name
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map(part => part[0].toUpperCase())
+        .join('');
     }
 
-    function getAvatarGradient(name) {
-      if (EMPLOYEE_THEMES[name]) {
-        return EMPLOYEE_THEMES[name].gradient;
-      }
-      const gradients = [
-        "from-indigo-500 to-violet-600",
-        "from-emerald-500 to-teal-600",
-        "from-amber-500 to-orange-600",
-        "from-rose-500 to-pink-600",
-        "from-sky-500 to-blue-600"
+    function getEmployeeGradient(name) {
+      if (EMPLOYEE_THEMES[name]) return EMPLOYEE_THEMES[name].bg;
+      const fallbacks = [
+        'from-indigo-500 to-blue-500',
+        'from-emerald-500 to-teal-500',
+        'from-fuchsia-500 to-pink-500',
+        'from-amber-500 to-orange-500',
+        'from-cyan-500 to-sky-500'
       ];
       let hash = 0;
-      for (let i = 0; i < (name || "A").length; i++) {
+      for (let i = 0; i < (name || '').length; i++) {
         hash = name.charCodeAt(i) + ((hash << 5) - hash);
       }
-      return gradients[Math.abs(hash) % gradients.length];
-    }
-
-    function formatFriendlyDay(isoDateStr) {
-      const todayStr = getLocalDateISO(new Date());
-      const tmrw = new Date();
-      tmrw.setDate(tmrw.getDate() + 1);
-      const tmrwStr = getLocalDateISO(tmrw);
-
-      const yest = new Date();
-      yest.setDate(yest.getDate() - 1);
-      const yestStr = getLocalDateISO(yest);
-
-      const [y, m, d] = isoDateStr.split('-').map(Number);
-      const dateObj = new Date(y, m - 1, d);
-      const formatted = dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-
-      if (isoDateStr === todayStr) return `Today · ${formatted}`;
-      if (isoDateStr === tmrwStr) return `Tomorrow · ${formatted}`;
-      if (isoDateStr === yestStr) return `Yesterday · ${formatted}`;
-      return dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+      return fallbacks[Math.abs(hash) % fallbacks.length];
     }
 
     function escapeHTML(str) {
       const div = document.createElement('div');
-      div.textContent = str;
+      div.textContent = str || '';
       return div.innerHTML;
     }
 
-    function showToast(message, type = "info") {
-      const container = document.getElementById("toastContainer");
-      const toast = document.createElement("div");
-      const styles = {
-        success: "bg-emerald-600 text-white shadow-emerald-600/25",
-        info: "bg-slate-900 text-white shadow-slate-900/25",
-        warning: "bg-amber-500 text-white shadow-amber-500/25"
-      };
-      toast.className = `px-4 py-2.5 rounded-full text-xs font-bold shadow-lg flex items-center gap-2 transition-all duration-300 transform translate-y-2 opacity-0 ${styles[type] || styles.info}`;
-      toast.innerHTML = `<span>${escapeHTML(message)}</span>`;
-      container.appendChild(toast);
+    function parseLocalDate(isoStr) {
+      const [y, m, d] = isoStr.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
 
-      requestAnimationFrame(() => {
-        toast.classList.remove("translate-y-2", "opacity-0");
-      });
+    function getRelativeDayLabel(isoStr) {
+      const target = parseLocalDate(isoStr);
+      const today = parseLocalDate(todayISO);
+      const diffDays = Math.round((target - today) / (1000 * 60 * 60 * 24));
+      if (diffDays === 0) return 'Today';
+      if (diffDays === 1) return 'Tomorrow';
+      if (diffDays === -1) return 'Yesterday';
+      return target.toLocaleDateString('en-US', { weekday: 'long' });
+    }
 
-      setTimeout(() => {
-        toast.classList.add("-translate-y-2", "opacity-0");
-        setTimeout(() => toast.remove(), 300);
+    function formatHumanDate(isoStr) {
+      const d = parseLocalDate(isoStr);
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    let toastTimer = null;
+    function showToast(msg, icon = '✅') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      document.getElementById('toastIcon').textContent = icon;
+      toast.classList.remove('opacity-0', '-translate-y-2');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.add('opacity-0', '-translate-y-2');
+        toast.classList.remove('opacity-100', 'translate-y-0');
       }, 2400);
     }
 
-    function updateSyncStatus(isLive, labelText) {
-      state.isFirestoreLive = isLive;
-      const badge = document.getElementById("syncBadge");
-      const dot = document.getElementById("syncDot");
-      const text = document.getElementById("syncText");
-
-      if (isLive) {
-        badge.className = "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/80 transition-colors";
-        dot.className = "w-1.5 h-1.5 rounded-full bg-emerald-500";
-        text.textContent = labelText || "Live Sync";
+    function setSyncStatus(mode, customText = null) {
+      if (mode === 'live') {
+        syncDot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+        syncLabel.textContent = customText || 'Firestore Live Sync';
+      } else if (mode === 'local') {
+        syncDot.className = 'w-2 h-2 rounded-full bg-amber-400';
+        syncLabel.textContent = customText || 'Local Mode (Check Rules)';
       } else {
-        badge.className = "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200/80 transition-colors";
-        dot.className = "w-1.5 h-1.5 rounded-full bg-amber-500";
-        text.textContent = labelText || "Local Mode";
+        syncDot.className = 'w-2 h-2 rounded-full bg-indigo-400 animate-pulse';
+        syncLabel.textContent = customText || 'Syncing...';
       }
     }
 
-    // -------------------------------------------------------------------------
-    // Local Storage Fallback Persistence (Guarantees zero downtime if offline/rules)
-    // -------------------------------------------------------------------------
+    // =========================================================================
+    // 6. LOCAL STORAGE FALLBACK (ONLY USED IF FIRESTORE RULES BLOCK WRITES)
+    // =========================================================================
     function loadLocalFallbackTasks() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY_LOCAL_TASKS);
-        if (raw) return JSON.parse(raw);
-      } catch (e) {
-        console.warn("Local storage read failed", e);
+      const saved = localStorage.getItem('taskity_fallback_tasks');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {}
       }
-      // Seed helpful starter tasks for Today if completely empty in fallback mode
-      const today = getLocalDateISO(new Date());
-      return [
-        {
-          id: "demo-1",
-          title: "Review daily priorities & align team deliverables",
-          employeeName: "Rahoof",
-          day: today,
-          priority: "High",
-          progress: 50,
-          createdAtMs: Date.now() - 3000
-        },
-        {
-          id: "demo-2",
-          title: "Finalize client presentation slides & assets",
-          employeeName: "Fidha Nasreen",
-          day: today,
-          priority: "Quick Win",
-          progress: 100,
-          createdAtMs: Date.now() - 2000
-        },
-        {
-          id: "demo-3",
-          title: "Complete backend workflow verification",
-          employeeName: "Suhail",
-          day: today,
-          priority: "Normal",
-          progress: 25,
-          createdAtMs: Date.now() - 1000
-        }
-      ];
+      return [];
     }
 
     function saveLocalFallbackTasks(tasks) {
-      try {
-        localStorage.setItem(STORAGE_KEY_LOCAL_TASKS, JSON.stringify(tasks));
-      } catch (e) {
-        console.warn("Local storage write failed", e);
-      }
+      localStorage.setItem('taskity_fallback_tasks', JSON.stringify(tasks));
     }
 
-    // -------------------------------------------------------------------------
-    // Realtime Firestore Listener
-    // -------------------------------------------------------------------------
-    function initFirestoreSync() {
+    // =========================================================================
+    // 7. FIREBASE INITIALIZATION & REALTIME LISTENER
+    // =========================================================================
+    function initFirebase() {
       try {
-        onSnapshot(
-          tasksCollection,
-          (snapshot) => {
-            const loaded = [];
-            snapshot.forEach((docSnap) => {
-              const data = docSnap.data();
-              loaded.push({
-                id: docSnap.id,
-                title: data.title || "Untitled Task",
-                employeeName: data.employeeName || "Team Member",
-                day: data.day || getLocalDateISO(new Date()),
-                priority: data.priority || "Normal",
-                progress: typeof data.progress === "number" ? data.progress : 0,
-                createdAtMs: data.createdAt?.toMillis ? data.createdAt.toMillis() : (data.createdAtMs || 0)
-              });
-            });
+        const app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        tasksCollection = collection(db, 'tasks');
 
-            // Sort newest first
-            loaded.sort((a, b) => b.createdAtMs - a.createdAtMs);
-            state.tasks = loaded;
-            saveLocalFallbackTasks(loaded);
-            updateSyncStatus(true, "Live Sync");
+        const q = query(tasksCollection, orderBy('createdAt', 'desc'));
+        onSnapshot(
+          q,
+          (snapshot) => {
+            state.useLocalFallback = false;
+            state.isLoading = false;
+            state.tasks = snapshot.docs.map(docSnap => ({
+              id: docSnap.id,
+              ...docSnap.data()
+            }));
+            setSyncStatus('live');
             renderAll();
           },
           (error) => {
-            console.warn("Firestore snapshot permission/network notice, switching to Local Mode:", error.message);
-            updateSyncStatus(false, "Local Mode");
+            console.error('Firestore listener error:', error.code, error.message);
+            state.useLocalFallback = true;
+            state.isLoading = false;
             state.tasks = loadLocalFallbackTasks();
+            const reason = error.code === 'permission-denied'
+              ? 'Firestore Rules Blocked'
+              : 'Offline / Local Mode';
+            setSyncStatus('local', reason);
             renderAll();
           }
         );
       } catch (err) {
-        console.warn("Firestore init fallback:", err);
-        updateSyncStatus(false, "Local Mode");
+        console.error('Firebase init failed:', err);
+        state.useLocalFallback = true;
+        state.isLoading = false;
         state.tasks = loadLocalFallbackTasks();
+        setSyncStatus('local', 'Local Mode');
         renderAll();
       }
     }
 
-    // -------------------------------------------------------------------------
-    // Day Scroller & Date Selection (Day Only - No Time)
-    // -------------------------------------------------------------------------
-    function renderDayScroller() {
-      const scroller = document.getElementById("dayScroller");
-      const today = new Date();
-      const todayISO = getLocalDateISO(today);
+    // =========================================================================
+    // 8. CRUD OPERATIONS (CREATE, UPDATE PROGRESS, DELETE)
+    // =========================================================================
+    async function createTask({ title, assignee, date, priority, notes }) {
+      const newTask = {
+        title: title.trim(),
+        assignee: assignee,
+        date,
+        priority: priority || 'normal',
+        notes: notes.trim(),
+        progress: 0,
+        createdBy: state.currentUser || assignee,
+        createdAt: Date.now()
+      };
 
-      // Generate a 10-day window (Yesterday + Today + next 8 days)
-      const days = [];
-      for (let offset = -1; offset <= 8; offset++) {
-        const d = new Date();
-        d.setDate(today.getDate() + offset);
-        days.push({
-          iso: getLocalDateISO(d),
-          dayNum: d.getDate(),
-          weekday: offset === 0 ? "TODAY" : offset === 1 ? "TMRW" : d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase(),
-          monthShort: d.toLocaleDateString('en-US', { month: 'short' })
-        });
+      if (!state.useLocalFallback && tasksCollection) {
+        try {
+          await addDoc(tasksCollection, newTask);
+          showToast(`Assigned to ${assignee}`, '🚀');
+          return;
+        } catch (err) {
+          console.error('Firestore write blocked:', err.code, err.message);
+          state.useLocalFallback = true;
+          setSyncStatus('local', 'Firestore Rules Blocked');
+          showToast('Firestore rules blocked write — saved locally', '⚠️');
+        }
       }
 
-      // If selectedDate is outside the 10-day window (via Jump calendar), prepend it
-      if (!days.some(item => item.iso === state.selectedDate)) {
-        const [y, m, d] = state.selectedDate.split('-').map(Number);
-        const customDate = new Date(y, m - 1, d);
-        days.unshift({
-          iso: state.selectedDate,
-          dayNum: customDate.getDate(),
-          weekday: customDate.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase(),
-          monthShort: customDate.toLocaleDateString('en-US', { month: 'short' })
-        });
+      newTask.id = 'local-' + Date.now();
+      state.tasks.unshift(newTask);
+      saveLocalFallbackTasks(state.tasks);
+      renderAll();
+      showToast(`Saved locally for ${assignee}`, '💾');
+    }
+
+    async function updateTaskProgress(taskId, newProgress) {
+      const clamped = Math.max(0, Math.min(100, Number(newProgress)));
+
+      const targetTask = state.tasks.find(t => t.id === taskId);
+      const prevProgress = targetTask ? targetTask.progress : 0;
+      if (targetTask) {
+        targetTask.progress = clamped;
+        renderAll();
       }
 
-      scroller.innerHTML = days.map(d => {
-        const isSelected = d.iso === state.selectedDate;
-        const taskCountForDay = state.tasks.filter(t => t.day === d.iso).length;
-        const allDoneForDay = taskCountForDay > 0 && state.tasks.filter(t => t.day === d.iso).every(t => t.progress === 100);
+      if (clamped === 100 && prevProgress < 100 && typeof confetti === 'function') {
+        confetti({
+          particleCount: 55,
+          spread: 65,
+          origin: { y: 0.72 }
+        });
+        showToast('Task 100% completed! Great work!', '🎉');
+      }
 
+      if (!state.useLocalFallback && db && !String(taskId).startsWith('local-')) {
+        try {
+          const ref = doc(db, 'tasks', taskId);
+          await updateDoc(ref, { progress: clamped });
+          return;
+        } catch (err) {
+          console.warn('Firestore update failed, syncing locally:', err);
+          state.useLocalFallback = true;
+          setSyncStatus('local', 'Firestore Rules Blocked');
+        }
+      }
+
+      saveLocalFallbackTasks(state.tasks);
+    }
+
+    async function deleteTask(taskId) {
+      state.tasks = state.tasks.filter(t => t.id !== taskId);
+      renderAll();
+
+      if (!state.useLocalFallback && db && !String(taskId).startsWith('local-')) {
+        try {
+          await deleteDoc(doc(db, 'tasks', taskId));
+          showToast('Task removed', '🗑️');
+          return;
+        } catch (err) {
+          console.warn('Firestore delete failed:', err);
+        }
+      }
+      saveLocalFallbackTasks(state.tasks);
+      showToast('Task removed', '🗑️');
+    }
+
+    // =========================================================================
+    // 9. UI RENDERING (ROSTER, DAY STRIP, PULSE HEADER, FILTER BAR, CARDS)
+    // =========================================================================
+    function updateUserBadge() {
+      if (state.currentUser) {
+        userAvatarBadge.textContent = getInitials(state.currentUser);
+        userAvatarBadge.className = `w-7 h-7 rounded-full bg-gradient-to-tr ${getEmployeeGradient(state.currentUser)} flex items-center justify-center text-xs font-bold text-white shadow-inner`;
+        userNameBadge.textContent = state.currentUser;
+      } else {
+        userAvatarBadge.textContent = '?';
+        userNameBadge.textContent = 'Select Staff';
+      }
+    }
+
+    function renderEmployeeRosterUI() {
+      const dayTasks = state.tasks.filter(t => t.date === state.selectedDate);
+      employeeFilterChips.innerHTML = EMPLOYEES.map(emp => {
+        const count = dayTasks.filter(t => t.assignee === emp).length;
+        const isSelected = state.filter === `emp:${emp}`;
         return `
-          <button onclick="selectDay('${d.iso}')"
-            class="shrink-0 w-12 h-14 rounded-2xl flex flex-col items-center justify-center transition-all active:scale-95 relative ${
-              isSelected
-                ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30 scale-[1.02]'
-                : 'bg-white text-slate-700 border border-slate-200/80 hover:border-indigo-300'
-            }">
-            <span class="text-[9px] font-extrabold tracking-wider ${isSelected ? 'text-indigo-200' : 'text-slate-400'}">${d.weekday}</span>
-            <span class="text-base font-extrabold leading-tight mt-0.5">${d.dayNum}</span>
-            ${
-              taskCountForDay > 0
-                ? `<span class="w-1.5 h-1.5 rounded-full mt-0.5 ${
-                    isSelected ? 'bg-white' : allDoneForDay ? 'bg-emerald-500' : 'bg-indigo-500'
-                  }"></span>`
-                : `<span class="w-1.5 h-1.5 mt-0.5"></span>`
-            }
+          <button data-filter="emp:${escapeHTML(emp)}" class="filter-chip whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-semibold transition flex items-center gap-1.5 ${
+            isSelected
+              ? 'bg-indigo-600 text-white shadow-sm'
+              : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+          }">
+            <span class="w-4 h-4 rounded-full bg-gradient-to-tr ${getEmployeeGradient(emp)} text-white text-[9px] font-bold flex items-center justify-center">
+              ${getInitials(emp)}
+            </span>
+            <span>${escapeHTML(emp)}</span>
+            ${count > 0 ? `<span class="text-[10px] px-1.5 py-0.2 rounded-full ${isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'}">${count}</span>` : ''}
           </button>
         `;
       }).join('');
 
-      // Update Header Month & Back-to-Today visibility
-      const [sy, sm, sd] = state.selectedDate.split('-').map(Number);
-      const selObj = new Date(sy, sm - 1, sd);
-      document.getElementById("headerMonthLabel").textContent = selObj.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-      document.getElementById("selectedDayFullLabel").textContent = formatFriendlyDay(state.selectedDate);
-      document.getElementById("jumpDateInput").value = state.selectedDate;
+      document.querySelectorAll('.filter-chip').forEach(btn => {
+        btn.onclick = () => {
+          state.filter = btn.dataset.filter;
+          document.querySelectorAll('.filter-chip').forEach(c => {
+            const active = c.dataset.filter === state.filter;
+            if (c.dataset.filter.startsWith('emp:')) {
+              c.className = active
+                ? 'filter-chip whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-semibold transition flex items-center gap-1.5 bg-indigo-600 text-white shadow-sm'
+                : 'filter-chip whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-semibold transition flex items-center gap-1.5 bg-white text-slate-600 border border-slate-200 hover:bg-slate-100';
+            } else {
+              c.className = active
+                ? 'filter-chip active whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold bg-slate-900 text-white shadow-sm transition'
+                : 'filter-chip whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition';
+            }
+          });
+          renderTasks();
+        };
+      });
 
-      const backBtn = document.getElementById("backToTodayBtn");
-      if (state.selectedDate !== todayISO) {
-        backBtn.classList.remove("hidden");
-        backBtn.classList.add("inline-flex");
-      } else {
-        backBtn.classList.add("hidden");
-        backBtn.classList.remove("inline-flex");
-      }
+      taskAssigneeInput.value = state.selectedAssigneeForNewTask;
+      assigneePickerGrid.innerHTML = EMPLOYEES.map(emp => {
+        const isPicked = state.selectedAssigneeForNewTask === emp;
+        return `
+          <button type="button" data-pick-emp="${escapeHTML(emp)}"
+            class="flex items-center gap-2.5 p-2.5 rounded-xl border text-left transition ${
+              isPicked
+                ? 'border-indigo-600 bg-indigo-50/80 ring-2 ring-indigo-500/20'
+                : 'border-slate-200 bg-slate-50 hover:bg-slate-100'
+            }">
+            <div class="w-7 h-7 rounded-lg bg-gradient-to-tr ${getEmployeeGradient(emp)} text-white font-bold text-[11px] flex items-center justify-center shrink-0">
+              ${getInitials(emp)}
+            </div>
+            <span class="text-xs font-bold truncate ${isPicked ? 'text-indigo-950' : 'text-slate-700'}">${escapeHTML(emp)}</span>
+          </button>
+        `;
+      }).join('');
+
+      assigneePickerGrid.querySelectorAll('[data-pick-emp]').forEach(btn => {
+        btn.onclick = () => {
+          state.selectedAssigneeForNewTask = btn.dataset.pickEmp;
+          renderEmployeeRosterUI();
+        };
+      });
+
+      employeeCheckInList.innerHTML = EMPLOYEES.map(emp => {
+        const isCurrent = state.currentUser === emp;
+        const myTodayCount = state.tasks.filter(t => t.date === todayISO && t.assignee === emp).length;
+        return `
+          <button type="button" data-checkin-emp="${escapeHTML(emp)}"
+            class="w-full flex items-center justify-between p-3 rounded-2xl border transition active:scale-[0.99] ${
+              isCurrent
+                ? 'border-indigo-600 bg-indigo-50/70 shadow-xs'
+                : 'border-slate-200 bg-white hover:bg-slate-50'
+            }">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-tr ${getEmployeeGradient(emp)} text-white font-display font-bold text-sm flex items-center justify-center shadow-xs">
+                ${getInitials(emp)}
+              </div>
+              <div class="text-left">
+                <p class="font-display font-bold text-sm text-slate-900">${escapeHTML(emp)}</p>
+                <p class="text-[11px] text-slate-500">${myTodayCount} ${myTodayCount === 1 ? 'task' : 'tasks'} today</p>
+              </div>
+            </div>
+            <span class="text-xs font-bold px-3 py-1 rounded-full ${
+              isCurrent ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'
+            }">
+              ${isCurrent ? 'Active ✓' : 'Select'}
+            </span>
+          </button>
+        `;
+      }).join('');
+
+      employeeCheckInList.querySelectorAll('[data-checkin-emp]').forEach(btn => {
+        btn.onclick = () => {
+          const chosen = btn.dataset.checkinEmp;
+          state.currentUser = chosen;
+          state.selectedAssigneeForNewTask = chosen;
+          localStorage.setItem('taskity_user', chosen);
+          updateUserBadge();
+          renderEmployeeRosterUI();
+          renderTasks();
+          closeModal(profileModal);
+          showToast(`Checked in as ${chosen}`, '👋');
+        };
+      });
     }
 
-    window.selectDay = function(isoDate) {
-      state.selectedDate = isoDate;
-      renderAll();
-    };
-
-    window.jumpToToday = function() {
-      state.selectedDate = getLocalDateISO(new Date());
-      renderAll();
-    };
-
-    document.getElementById("jumpDateInput").addEventListener("change", (e) => {
-      if (e.target.value) {
-        state.selectedDate = e.target.value;
-        renderAll();
+    function renderDayStrip() {
+      const base = parseLocalDate(todayISO);
+      const days = [];
+      for (let offset = -1; offset <= 10; offset++) {
+        const d = new Date(base);
+        d.setDate(base.getDate() + offset);
+        days.push(formatDateISO(d));
       }
-    });
+      if (!days.includes(state.selectedDate)) {
+        days.unshift(state.selectedDate);
+      }
 
-    // -------------------------------------------------------------------------
-    // Render Summary Banner & Task Cards
-    // -------------------------------------------------------------------------
-    function renderSummary() {
-      const dayTasks = state.tasks.filter(t => t.day === state.selectedDate);
+      dayStrip.innerHTML = days.map(iso => {
+        const d = parseLocalDate(iso);
+        const isSelected = iso === state.selectedDate;
+        const isToday = iso === todayISO;
+        const dayShort = isToday
+          ? 'TODAY'
+          : iso === formatDateISO(new Date(base.getFullYear(), base.getMonth(), base.getDate() + 1))
+          ? 'TMRW'
+          : d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+        const dayNum = d.getDate();
+
+        const dayTasks = state.tasks.filter(t => t.date === iso);
+        const hasTasks = dayTasks.length > 0;
+        const allDone = hasTasks && dayTasks.every(t => Number(t.progress) === 100);
+
+        return `
+          <button data-date="${iso}" class="day-pill shrink-0 w-14 py-2.5 rounded-2xl flex flex-col items-center justify-center transition-all ${
+            isSelected
+              ? 'bg-white text-slate-950 shadow-lg scale-105 font-bold'
+              : 'bg-white/10 text-slate-200 hover:bg-white/20'
+          }">
+            <span class="text-[10px] tracking-wider font-bold ${isSelected ? 'text-indigo-600' : 'text-slate-300'}">${dayShort}</span>
+            <span class="font-display text-lg font-extrabold leading-tight my-0.5">${dayNum}</span>
+            <span class="w-1.5 h-1.5 rounded-full ${
+              allDone ? 'bg-emerald-400' : hasTasks ? (isSelected ? 'bg-indigo-600' : 'bg-cyan-400') : 'bg-transparent'
+            }"></span>
+          </button>
+        `;
+      }).join('');
+
+      dayStrip.querySelectorAll('.day-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.selectedDate = btn.dataset.date;
+          nativeDatePicker.value = state.selectedDate;
+          renderAll();
+        });
+      });
+    }
+
+    function renderPulseHeader() {
+      const rel = getRelativeDayLabel(state.selectedDate);
+      selectedDaySubtitle.textContent = `${rel}'s Team Pulse`;
+      selectedDateHeading.textContent = formatHumanDate(state.selectedDate);
+
+      const dayTasks = state.tasks.filter(t => t.date === state.selectedDate);
       const total = dayTasks.length;
-      const completed = dayTasks.filter(t => t.progress === 100).length;
-
-      // Average progress across all tasks for that day
-      const avgPercent = total === 0
+      const completedCount = dayTasks.filter(t => Number(t.progress) === 100).length;
+      const avgProgress = total === 0
         ? 0
-        : Math.round(dayTasks.reduce((sum, t) => sum + (t.progress || 0), 0) / total);
+        : Math.round(dayTasks.reduce((sum, t) => sum + Number(t.progress || 0), 0) / total);
 
-      document.getElementById("summaryPercentText").textContent = `${avgPercent}%`;
-      document.getElementById("summarySubtext").textContent = total === 0
-        ? "No tasks scheduled for this day yet"
-        : `${completed} of ${total} task${total === 1 ? '' : 's'} completed`;
+      dayCompletionPct.textContent = `${avgProgress}%`;
+      dayTaskFraction.textContent = `${completedCount} of ${total} done`;
+      dayMasterBar.style.width = `${avgProgress}%`;
+    }
 
-      const headline = document.getElementById("summaryHeadline");
-      if (total === 0) headline.textContent = "Ready to Plan";
-      else if (avgPercent === 100) headline.textContent = "All Clear! 🎉";
-      else if (avgPercent >= 60) headline.textContent = "Strong Progress";
-      else headline.textContent = "Team Momentum";
+    function getPriorityBadge(priority) {
+      if (priority === 'high') {
+        return `<span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-rose-50 text-rose-600 border border-rose-200/70">🔥 High</span>`;
+      }
+      if (priority === 'low') {
+        return `<span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200/70">✨ Quick Win</span>`;
+      }
+      return `<span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-600 border border-indigo-200/70">⚡ Normal</span>`;
+    }
 
-      // Animate SVG Circle (circumference = 2 * pi * 26 = 163.36)
-      const circumference = 163.36;
-      const offset = circumference - (avgPercent / 100) * circumference;
-      document.getElementById("summaryRingCircle").style.strokeDashoffset = offset;
+    function getProgressMeta(progress) {
+      const p = Number(progress);
+      if (p === 100) return { label: 'Completed', color: '#10b981', textClass: 'text-emerald-600', badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
+      if (p > 0) return { label: 'In Progress', color: '#4f46e5', textClass: 'text-indigo-600', badgeBg: 'bg-indigo-50 text-indigo-700 border-indigo-200' };
+      return { label: 'Not Started', color: '#94a3b8', textClass: 'text-slate-500', badgeBg: 'bg-slate-100 text-slate-600 border-slate-200' };
     }
 
     function renderTasks() {
-      const container = document.getElementById("taskListContainer");
-      const skeleton = document.getElementById("loadingSkeleton");
-      if (skeleton) skeleton.remove();
+      if (state.isLoading) return;
 
-      let filtered = state.tasks.filter(t => t.day === state.selectedDate);
+      let filtered = state.tasks.filter(t => t.date === state.selectedDate);
 
-      if (state.filter === "mine" && state.currentUser) {
-        filtered = filtered.filter(t => t.employeeName.toLowerCase() === state.currentUser.toLowerCase());
-      } else if (state.filter === "working") {
-        filtered = filtered.filter(t => t.progress > 0 && t.progress < 100);
-      } else if (state.filter === "done") {
-        filtered = filtered.filter(t => t.progress === 100);
-      } else if (state.filter.startsWith("emp:")) {
+      if (state.filter === 'mine') {
+        const me = state.currentUser.toLowerCase();
+        filtered = filtered.filter(t => (t.assignee || '').toLowerCase() === me);
+      } else if (state.filter === 'active') {
+        filtered = filtered.filter(t => Number(t.progress) > 0 && Number(t.progress) < 100);
+      } else if (state.filter === 'done') {
+        filtered = filtered.filter(t => Number(t.progress) === 100);
+      } else if (state.filter.startsWith('emp:')) {
         const targetEmp = state.filter.slice(4);
-        filtered = filtered.filter(t => t.employeeName === targetEmp);
+        filtered = filtered.filter(t => t.assignee === targetEmp);
       }
 
       if (filtered.length === 0) {
-        container.innerHTML = `
-          <div class="task-card-anim bg-white rounded-3xl border border-dashed border-slate-300 p-8 text-center space-y-3 my-2">
-            <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto">
-              <i data-lucide="sparkles" class="w-6 h-6"></i>
+        const emptyLabel = state.filter.startsWith('emp:')
+          ? `No tasks assigned to ${escapeHTML(state.filter.slice(4))} on this day`
+          : state.filter === 'mine' && state.currentUser
+          ? `No tasks assigned to ${escapeHTML(state.currentUser)} on this day`
+          : `No tasks scheduled for this day`;
+
+        taskListContainer.innerHTML = `
+          <div class="bg-white rounded-3xl p-8 text-center border border-slate-200/80 shadow-xs mt-2 card-enter">
+            <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto mb-3 text-2xl">
+              📋
             </div>
-            <div>
-              <h3 class="text-sm font-extrabold text-slate-800">No tasks for this view</h3>
-              <p class="text-xs text-slate-500 mt-1 max-w-[240px] mx-auto">
-                Tap <span class="font-bold text-indigo-600">+ New Task</span> below to assign a goal for ${formatFriendlyDay(state.selectedDate).split('·')[0].trim()}.
-              </p>
-            </div>
+            <h3 class="font-display font-bold text-slate-900 text-base">${emptyLabel}</h3>
+            <p class="text-xs text-slate-500 mt-1 max-w-[260px] mx-auto">
+              Tap <strong>+ New Task</strong> below to assign a daily task to Rahoof, Fidha Nasreen, Suhail, Ashraf, or Anwar.
+            </p>
+            <button type="button" id="emptyStateCreateBtn" class="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold shadow-sm hover:bg-indigo-700 transition">
+              + Assign Task
+            </button>
           </div>
         `;
-        lucide.createIcons();
+        const emptyBtn = document.getElementById('emptyStateCreateBtn');
+        if (emptyBtn) {
+          emptyBtn.onclick = () => document.getElementById('openCreateModalBtn').click();
+        }
         return;
       }
 
-      container.innerHTML = filtered.map(task => {
-        const isDone = task.progress === 100;
-        const isWorking = task.progress > 0 && task.progress < 100;
-        const avatarGrad = getAvatarGradient(task.employeeName);
-        const initials = getInitials(task.employeeName);
-
-        // Priority badge styling
-        let prioBadge = `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-600">⚡ Normal</span>`;
-        if (task.priority === "High") {
-          prioBadge = `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-50 text-rose-600 border border-rose-200/70">🔥 High</span>`;
-        } else if (task.priority === "Quick Win") {
-          prioBadge = `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200/70">✨ Quick Win</span>`;
-        }
-
-        // Status Pill
-        let statusPill = `<span class="text-[11px] font-bold text-slate-500">To Do · 0%</span>`;
-        if (isDone) {
-          statusPill = `<span class="inline-flex items-center gap-1 text-[11px] font-extrabold text-emerald-600"><i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Done · 100%</span>`;
-        } else if (isWorking) {
-          statusPill = `<span class="text-[11px] font-extrabold text-indigo-600">Working · ${task.progress}%</span>`;
-        }
+      taskListContainer.innerHTML = filtered.map(task => {
+        const p = Number(task.progress || 0);
+        const meta = getProgressMeta(p);
+        const grad = getEmployeeGradient(task.assignee);
+        const isDone = p === 100;
+        const assignedByText = task.createdBy && task.createdBy !== task.assignee
+          ? `Assigned by ${escapeHTML(task.createdBy)}`
+          : 'Daily deliverable';
 
         return `
-          <article class="task-card-anim bg-white rounded-3xl p-4 border transition-all shadow-xs ${
-            isDone ? 'border-emerald-200/90 bg-emerald-50/20' : 'border-slate-200/80 hover:border-indigo-200'
-          }">
-            <!-- Top Row: Employee Info + Priority + Delete -->
+          <article data-task-id="${task.id}" class="bg-white rounded-2xl p-4 border ${isDone ? 'border-emerald-200/90 bg-emerald-50/20' : 'border-slate-200/80'} shadow-xs transition-all card-enter">
+            <!-- Top Row: Assignee + Priority + Delete -->
             <div class="flex items-center justify-between gap-2 mb-2.5">
-              <div class="flex items-center gap-2 min-w-0">
-                <div class="w-7 h-7 rounded-full bg-gradient-to-br ${avatarGrad} text-white text-[11px] font-extrabold flex items-center justify-center shrink-0 shadow-xs">
-                  ${escapeHTML(initials)}
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-8 h-8 rounded-xl bg-gradient-to-tr ${grad} text-white font-display font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
+                  ${getInitials(task.assignee)}
                 </div>
-                <span class="text-xs font-bold text-slate-700 truncate">${escapeHTML(task.employeeName)}</span>
-                ${prioBadge}
+                <div class="min-w-0">
+                  <p class="text-xs font-bold text-slate-900 truncate">${escapeHTML(task.assignee)}</p>
+                  <p class="text-[10px] text-slate-400 font-medium">${assignedByText}</p>
+                </div>
               </div>
 
-              <button onclick="promptDeleteTask('${task.id}', '${escapeHTML(task.title).replace(/'/g, "\\'")}')"
-                class="w-7 h-7 rounded-full text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition shrink-0" title="Delete Task">
-                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-              </button>
+              <div class="flex items-center gap-1.5 shrink-0">
+                ${getPriorityBadge(task.priority)}
+                <button data-delete-id="${task.id}" title="Delete Task" class="delete-btn w-7 h-7 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
             </div>
 
-            <!-- Task Title -->
-            <p class="text-[15px] font-bold leading-snug mb-3.5 transition-all ${
-              isDone ? 'line-through text-slate-400' : 'text-slate-900'
-            }">
+            <!-- Task Title & Optional Notes -->
+            <h3 class="font-display font-bold text-[15px] leading-snug ${isDone ? 'line-through text-slate-400' : 'text-slate-900'}">
               ${escapeHTML(task.title)}
-            </p>
+            </h3>
+            ${task.notes ? `<p class="text-xs text-slate-500 mt-1 leading-relaxed">${escapeHTML(task.notes)}</p>` : ''}
 
-            <!-- Interactive Progress Slider & Status -->
-            <div class="bg-slate-50/90 rounded-2xl p-3 border border-slate-100 space-y-2.5">
-              <div class="flex items-center justify-between">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Progress</span>
-                <div id="progLabel-${task.id}">${statusPill}</div>
+            <!-- Interactive Progress Bar + Slider -->
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[11px] font-semibold text-slate-500">Progress</span>
+                <div class="flex items-center gap-1.5">
+                  <span class="progress-status-pill text-[10px] font-bold px-2 py-0.5 rounded-full border ${meta.badgeBg}">
+                    ${meta.label} · <span class="progress-pct-text">${p}%</span>
+                  </span>
+                </div>
               </div>
 
-              <!-- Smooth Range Slider -->
-              <input type="range" min="0" max="100" step="5" value="${task.progress}"
-                oninput="previewSliderProgress('${task.id}', this.value)"
-                onchange="commitTaskProgress('${task.id}', Number(this.value))"
-                class="progress-slider ${isDone ? 'done-slider' : ''}" />
+              <input
+                type="range"
+                min="0"
+                max="100"
+                step="5"
+                value="${p}"
+                data-slider-id="${task.id}"
+                class="progress-slider"
+                style="background: linear-gradient(to right, ${meta.color} ${p}%, #e2e8f0 ${p}%);"
+              />
 
-              <!-- One-Tap Quick Stage Buttons -->
-              <div class="grid grid-cols-3 gap-1.5 pt-0.5">
-                <button onclick="commitTaskProgress('${task.id}', 0)"
-                  class="py-1.5 rounded-xl text-[11px] font-bold transition active:scale-95 ${
-                    task.progress === 0
-                      ? 'bg-slate-800 text-white shadow-xs'
-                      : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-100'
-                  }">
+              <!-- Quick Tap Status Pills -->
+              <div class="grid grid-cols-3 gap-1.5 mt-2.5">
+                <button data-quick-id="${task.id}" data-val="0" class="quick-btn py-1.5 rounded-lg text-[11px] font-semibold border transition ${
+                  p === 0 ? 'bg-slate-800 text-white border-slate-800' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                }">
                   To Do
                 </button>
-                <button onclick="commitTaskProgress('${task.id}', 50)"
-                  class="py-1.5 rounded-xl text-[11px] font-bold transition active:scale-95 ${
-                    task.progress > 0 && task.progress < 100
-                      ? 'bg-indigo-600 text-white shadow-xs'
-                      : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-indigo-50 hover:text-indigo-600'
-                  }">
+                <button data-quick-id="${task.id}" data-val="50" class="quick-btn py-1.5 rounded-lg text-[11px] font-semibold border transition ${
+                  p > 0 && p < 100 ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                }">
                   In Progress
                 </button>
-                <button onclick="commitTaskProgress('${task.id}', 100)"
-                  class="py-1.5 rounded-xl text-[11px] font-bold transition active:scale-95 flex items-center justify-center gap-1 ${
-                    isDone
-                      ? 'bg-emerald-600 text-white shadow-xs'
-                      : 'bg-white text-emerald-700 border border-emerald-200 hover:bg-emerald-50'
-                  }">
-                  <i data-lucide="check" class="w-3 h-3 stroke-[3]"></i> Done
+                <button data-quick-id="${task.id}" data-val="100" class="quick-btn py-1.5 rounded-lg text-[11px] font-semibold border transition ${
+                  p === 100 ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                }">
+                  Done ✓
                 </button>
               </div>
             </div>
@@ -989,411 +1068,165 @@
         `;
       }).join('');
 
-      lucide.createIcons();
+      attachCardListeners();
     }
 
-    function renderUserHeader() {
-      const nameEl = document.getElementById("currentUserNameDisplay");
-      const avatarEl = document.getElementById("currentUserAvatar");
+    function attachCardListeners() {
+      document.querySelectorAll('.progress-slider').forEach(slider => {
+        slider.addEventListener('input', (e) => {
+          const val = Number(e.target.value);
+          const meta = getProgressMeta(val);
+          e.target.style.background = `linear-gradient(to right, ${meta.color} ${val}%, #e2e8f0 ${val}%)`;
+          const card = e.target.closest('article');
+          const pctSpan = card.querySelector('.progress-pct-text');
+          if (pctSpan) pctSpan.textContent = `${val}%`;
+        });
 
-      if (state.currentUser) {
-        nameEl.textContent = state.currentUser;
-        avatarEl.textContent = getInitials(state.currentUser);
-        avatarEl.className = `w-6 h-6 rounded-full bg-gradient-to-br ${getAvatarGradient(state.currentUser)} text-white text-[10px] font-extrabold flex items-center justify-center shadow-xs`;
-      } else {
-        nameEl.textContent = "Select Staff";
-        avatarEl.textContent = "?";
-        avatarEl.className = "w-6 h-6 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center shadow-xs";
-      }
-    }
-
-    function renderFilterBar() {
-      const bar = document.getElementById("filterBar");
-      const dayTasks = state.tasks.filter(t => t.day === state.selectedDate);
-
-      const baseFilters = [
-        { id: "all", label: `All Team (${dayTasks.length})` },
-        { id: "mine", label: "My Tasks" },
-        { id: "working", label: "In Progress" },
-        { id: "done", label: "Completed" }
-      ];
-
-      const empFilters = EMPLOYEES.map(emp => {
-        const count = dayTasks.filter(t => t.employeeName === emp).length;
-        return {
-          id: `emp:${emp}`,
-          label: count > 0 ? `${emp} (${count})` : emp,
-          empName: emp
-        };
+        slider.addEventListener('change', (e) => {
+          updateTaskProgress(e.target.dataset.sliderId, e.target.value);
+        });
       });
 
-      const allChips = [...baseFilters, ...empFilters];
+      document.querySelectorAll('.quick-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          updateTaskProgress(btn.dataset.quickId, btn.dataset.val);
+        });
+      });
 
-      bar.innerHTML = allChips.map(chip => {
-        const isActive = state.filter === chip.id;
-        const avatarDot = chip.empName
-          ? `<span class="w-4 h-4 rounded-full bg-gradient-to-br ${getAvatarGradient(chip.empName)} text-white text-[8px] font-extrabold inline-flex items-center justify-center">${getInitials(chip.empName)}</span>`
-          : "";
-
-        return `
-          <button onclick="setFilter('${chip.id.replace(/'/g, "\\'")}')"
-            class="filter-chip shrink-0 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition active:scale-95 ${
-              isActive
-                ? 'bg-slate-900 text-white shadow-xs'
-                : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50'
-            }">
-            ${avatarDot}
-            <span>${escapeHTML(chip.label)}</span>
-          </button>
-        `;
-      }).join('');
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          deleteTask(btn.dataset.deleteId);
+        });
+      });
     }
 
     function renderAll() {
-      renderUserHeader();
-      renderDayScroller();
-      renderSummary();
-      renderFilterBar();
+      updateUserBadge();
+      renderEmployeeRosterUI();
+      renderDayStrip();
+      renderPulseHeader();
       renderTasks();
     }
 
-    // -------------------------------------------------------------------------
-    // Interactive Progress Updates (Slider + Quick Pills + Celebration)
-    // -------------------------------------------------------------------------
-    window.previewSliderProgress = function(taskId, val) {
-      const num = Number(val);
-      const labelEl = document.getElementById(`progLabel-${taskId}`);
-      if (!labelEl) return;
-      if (num === 100) {
-        labelEl.innerHTML = `<span class="text-[11px] font-extrabold text-emerald-600">Done · 100%</span>`;
-      } else if (num > 0) {
-        labelEl.innerHTML = `<span class="text-[11px] font-extrabold text-indigo-600">Working · ${num}%</span>`;
-      } else {
-        labelEl.innerHTML = `<span class="text-[11px] font-bold text-slate-500">To Do · 0%</span>`;
-      }
-    };
-
-    window.commitTaskProgress = async function(taskId, newProgress) {
-      const task = state.tasks.find(t => t.id === taskId);
-      if (!task) return;
-
-      const wasDone = task.progress === 100;
-      const isNowDone = newProgress === 100;
-
-      // Optimistic local UI update
-      task.progress = newProgress;
-      renderSummary();
-      renderTasks();
-
-      if (!wasDone && isNowDone) {
-        triggerCelebration();
-        showToast("Awesome! Task marked 100% Done 🎉", "success");
-      }
-
-      if (state.isFirestoreLive && !taskId.startsWith("demo-")) {
-        try {
-          await updateDoc(doc(db, "tasks", taskId), {
-            progress: newProgress
-          });
-        } catch (err) {
-          console.warn("Firestore update fallback:", err);
-          saveLocalFallbackTasks(state.tasks);
-        }
-      } else {
-        saveLocalFallbackTasks(state.tasks);
-      }
-    };
-
-    function triggerCelebration() {
-      if (typeof confetti === "function") {
-        confetti({
-          particleCount: 55,
-          spread: 65,
-          origin: { y: 0.72 },
-          colors: ['#4f46e5', '#10b981', '#f59e0b', '#ec4899']
-        });
-      }
+    // =========================================================================
+    // 10. EVENT LISTENERS (MODALS, FORMS, FILTERS, PWA INSTALL)
+    // =========================================================================
+    function openModal(modalEl) {
+      modalEl.classList.remove('hidden');
+      modalEl.classList.add('flex');
     }
 
-    // -------------------------------------------------------------------------
-    // Filter Controls
-    // -------------------------------------------------------------------------
-    window.setFilter = function(filterName) {
-      if (filterName === "mine" && !state.currentUser) {
-        openProfileModal();
-        showToast("Select your profile first to filter My Tasks", "info");
-        return;
-      }
-
-      state.filter = filterName;
-      renderFilterBar();
-      renderTasks();
-    };
-
-    // -------------------------------------------------------------------------
-    // Create Task Modal & Submission
-    // -------------------------------------------------------------------------
-    function renderCreateEmployeeChips() {
-      const container = document.getElementById("createEmployeeChips");
-      const hiddenInput = document.getElementById("taskEmployeeInput");
-      hiddenInput.value = state.newTaskEmployee;
-
-      container.innerHTML = EMPLOYEES.map(emp => {
-        const isSelected = state.newTaskEmployee === emp;
-        const grad = getAvatarGradient(emp);
-        const initials = getInitials(emp);
-
-        return `
-          <button type="button" onclick="selectCreateEmployee('${emp.replace(/'/g, "\\'")}')"
-            class="inline-flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full text-xs font-bold transition active:scale-95 ${
-              isSelected
-                ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/25 ring-2 ring-indigo-600 ring-offset-1'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200/80 border border-slate-200/70'
-            }">
-            <span class="w-5 h-5 rounded-full bg-gradient-to-br ${grad} text-white text-[9px] font-extrabold flex items-center justify-center ${isSelected ? 'ring-1 ring-white/60' : ''}">
-              ${initials}
-            </span>
-            <span>${escapeHTML(emp)}</span>
-          </button>
-        `;
-      }).join('');
+    function closeModal(modalEl) {
+      modalEl.classList.add('hidden');
+      modalEl.classList.remove('flex');
     }
 
-    window.selectCreateEmployee = function(empName) {
-      state.newTaskEmployee = empName;
-      renderCreateEmployeeChips();
-    };
-
-    window.openCreateTaskModal = function() {
-      const modal = document.getElementById("createTaskModal");
-      const backdrop = document.getElementById("createBackdrop");
-      const panel = document.getElementById("createPanel");
-
-      // Pre-fill date with currently selected day & assignee with current active employee
-      document.getElementById("taskDateInput").value = state.selectedDate;
-      state.newTaskEmployee = state.currentUser || EMPLOYEES[0];
-      renderCreateEmployeeChips();
-      document.getElementById("taskTitleInput").value = "";
-      selectPriority("Normal");
-      setNewTaskProgress(0);
-
-      modal.classList.remove("hidden");
-      requestAnimationFrame(() => {
-        backdrop.classList.remove("opacity-0");
-        panel.classList.remove("translate-y-full");
-      });
-
-      setTimeout(() => document.getElementById("taskTitleInput").focus(), 200);
-    };
-
-    window.closeCreateTaskModal = function() {
-      const modal = document.getElementById("createTaskModal");
-      const backdrop = document.getElementById("createBackdrop");
-      const panel = document.getElementById("createPanel");
-
-      backdrop.classList.add("opacity-0");
-      panel.classList.add("translate-y-full");
-      setTimeout(() => modal.classList.add("hidden"), 280);
-    };
-
-    window.selectPriority = function(prio) {
-      state.newTaskPriority = prio;
-      document.querySelectorAll(".prio-btn").forEach(btn => {
-        if (btn.dataset.priority === prio) {
-          btn.className = "prio-btn active py-2 px-3 rounded-xl border-2 border-indigo-600 bg-indigo-50 text-indigo-700 text-xs font-bold flex items-center justify-center gap-1.5 transition";
-        } else {
-          btn.className = "prio-btn py-2 px-3 rounded-xl border border-slate-200 bg-white text-slate-600 text-xs font-bold flex items-center justify-center gap-1.5 transition";
-        }
-      });
-    };
-
-    window.setNewTaskProgress = function(val) {
-      state.newTaskProgress = val;
-      const labelMap = { 0: "0% (To Do)", 25: "25% (Started)", 50: "50% (Working)", 100: "100% (Done)" };
-      document.getElementById("newTaskProgressLabel").textContent = labelMap[val] || `${val}%`;
-
-      document.querySelectorAll(".init-prog-btn").forEach(btn => {
-        if (Number(btn.dataset.val) === val) {
-          btn.className = "init-prog-btn active py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold transition";
-        } else {
-          btn.className = "init-prog-btn py-2 rounded-xl bg-slate-100 text-slate-600 text-xs font-bold transition";
-        }
-      });
-    };
-
-    window.handleCreateTask = async function(e) {
-      e.preventDefault();
-      const title = document.getElementById("taskTitleInput").value.trim();
-      const employeeName = state.newTaskEmployee;
-      const day = document.getElementById("taskDateInput").value;
-
-      if (!title || !employeeName || !day) return;
-
-      // If no user is checked in yet, automatically check in as the selected employee
-      if (!state.currentUser) {
-        state.currentUser = employeeName;
-        localStorage.setItem(STORAGE_KEY_USER, employeeName);
+    document.getElementById('openCreateModalBtn').addEventListener('click', () => {
+      document.getElementById('taskDateInput').value = state.selectedDate;
+      if (state.currentUser) {
+        state.selectedAssigneeForNewTask = state.currentUser;
       }
-
-      // Switch board view to the day the task was created for
-      state.selectedDate = day;
-
-      const newTaskPayload = {
-        title,
-        employeeName,
-        day,
-        priority: state.newTaskPriority,
-        progress: state.newTaskProgress,
-        createdAtMs: Date.now()
-      };
-
-      closeCreateTaskModal();
-      showToast("Task added to board!", "success");
-
-      if (newTaskPayload.progress === 100) {
-        triggerCelebration();
-      }
-
-      if (state.isFirestoreLive) {
-        try {
-          await addDoc(tasksCollection, {
-            ...newTaskPayload,
-            createdAt: serverTimestamp()
-          });
-        } catch (err) {
-          console.warn("Firestore add failed, saving locally:", err);
-          updateSyncStatus(false, "Local Mode");
-          state.tasks.unshift({ id: "local-" + Date.now(), ...newTaskPayload });
-          saveLocalFallbackTasks(state.tasks);
-          renderAll();
-        }
-      } else {
-        state.tasks.unshift({ id: "local-" + Date.now(), ...newTaskPayload });
-        saveLocalFallbackTasks(state.tasks);
-        renderAll();
-      }
-    };
-
-    // -------------------------------------------------------------------------
-    // Employee Profile Switcher Modal (Predefined Roster Picker)
-    // -------------------------------------------------------------------------
-    window.openProfileModal = function() {
-      const modal = document.getElementById("profileModal");
-      const backdrop = document.getElementById("profileBackdrop");
-      const panel = document.getElementById("profilePanel");
-      const grid = document.getElementById("employeePickerGrid");
-
-      const todayStr = getLocalDateISO(new Date());
-
-      grid.innerHTML = EMPLOYEES.map((emp, idx) => {
-        const isCurrent = state.currentUser === emp;
-        const grad = getAvatarGradient(emp);
-        const initials = getInitials(emp);
-        const todayCount = state.tasks.filter(t => t.day === todayStr && t.employeeName === emp).length;
-        // Make the 5th card span full width on a 2-column grid for balanced visual symmetry
-        const spanClass = idx === EMPLOYEES.length - 1 && EMPLOYEES.length % 2 === 1 ? "col-span-2" : "";
-
-        return `
-          <button type="button" onclick="selectEmployeeProfile('${emp.replace(/'/g, "\\'")}')"
-            class="${spanClass} flex items-center gap-3 p-3 rounded-2xl border-2 text-left transition active:scale-[0.98] ${
-              isCurrent
-                ? 'border-indigo-600 bg-indigo-50/70 shadow-xs'
-                : 'border-slate-200/80 bg-white hover:border-indigo-300 hover:bg-slate-50'
-            }">
-            <div class="w-10 h-10 rounded-2xl bg-gradient-to-br ${grad} text-white text-xs font-extrabold flex items-center justify-center shrink-0 shadow-xs">
-              ${initials}
-            </div>
-            <div class="min-w-0 flex-1">
-              <div class="flex items-center justify-between gap-1">
-                <p class="text-sm font-extrabold text-slate-900 truncate">${escapeHTML(emp)}</p>
-                ${isCurrent ? '<span class="w-2 h-2 rounded-full bg-indigo-600 shrink-0"></span>' : ''}
-              </div>
-              <p class="text-[11px] font-medium text-slate-500">
-                ${todayCount} task${todayCount === 1 ? '' : 's'} today
-              </p>
-            </div>
-          </button>
-        `;
-      }).join('');
-
-      modal.classList.remove("hidden");
-      requestAnimationFrame(() => {
-        backdrop.classList.remove("opacity-0");
-        panel.classList.remove("translate-y-full");
-      });
-    };
-
-    window.closeProfileModal = function() {
-      const modal = document.getElementById("profileModal");
-      const backdrop = document.getElementById("profileBackdrop");
-      const panel = document.getElementById("profilePanel");
-
-      backdrop.classList.add("opacity-0");
-      panel.classList.add("translate-y-full");
-      setTimeout(() => modal.classList.add("hidden"), 280);
-    };
-
-    window.selectEmployeeProfile = function(name) {
-      if (!EMPLOYEES.includes(name)) return;
-      state.currentUser = name;
-      state.newTaskEmployee = name;
-      localStorage.setItem(STORAGE_KEY_USER, name);
-      closeProfileModal();
-      renderAll();
-      showToast(`Checked in as ${name}`, "success");
-    };
-
-    // -------------------------------------------------------------------------
-    // PWA Install Prompt & Inline Service Worker Registration
-    // -------------------------------------------------------------------------
-    let deferredInstallPrompt = null;
-
-    window.addEventListener("beforeinstallprompt", (e) => {
-      e.preventDefault();
-      deferredInstallPrompt = e;
-      const installBtn = document.getElementById("installPwaBtn");
-      installBtn.classList.remove("hidden");
-      installBtn.classList.add("inline-flex");
+      renderEmployeeRosterUI();
+      openModal(createTaskModal);
+      setTimeout(() => document.getElementById('taskTitleInput').focus(), 150);
     });
 
-    window.triggerInstallPWA = async function() {
-      if (!deferredInstallPrompt) return;
-      deferredInstallPrompt.prompt();
-      const { outcome } = await deferredInstallPrompt.userChoice;
-      if (outcome === "accepted") {
-        document.getElementById("installPwaBtn").classList.add("hidden");
-      }
-      deferredInstallPrompt = null;
-    };
+    document.getElementById('closeCreateModalBtn').addEventListener('click', () => closeModal(createTaskModal));
+    createTaskModal.addEventListener('click', (e) => {
+      if (e.target === createTaskModal) closeModal(createTaskModal);
+    });
 
-    // Register lightweight inline Service Worker for PWA installability
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        const swCode = `
-          self.addEventListener('install', (e) => self.skipWaiting());
-          self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
-          self.addEventListener('fetch', (e) => {
-            e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
-          });
-        `;
-        const swBlob = new Blob([swCode], { type: "application/javascript" });
-        const swUrl = URL.createObjectURL(swBlob);
-        navigator.serviceWorker.register(swUrl).catch(() => {
-          // Blob SW registration may be restricted in sandboxed iframes; works seamlessly on HTTPS/GitHub Pages
+    document.getElementById('createTaskForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = document.getElementById('taskTitleInput').value;
+      const assignee = state.selectedAssigneeForNewTask || EMPLOYEES[0];
+      const date = document.getElementById('taskDateInput').value;
+      const priority = document.getElementById('taskPriorityInput').value;
+      const notes = document.getElementById('taskNotesInput').value;
+
+      if (!title.trim() || !assignee) return;
+
+      const btn = document.getElementById('submitTaskBtn');
+      btn.disabled = true;
+      btn.textContent = 'Assigning...';
+
+      await createTask({ title, assignee, date, priority, notes });
+
+      btn.disabled = false;
+      btn.textContent = 'Create & Assign Task';
+      e.target.reset();
+      state.selectedDate = date;
+      closeModal(createTaskModal);
+      renderAll();
+    });
+
+    // Employee Check-In Modal
+    document.getElementById('profileBtn').addEventListener('click', () => {
+      renderEmployeeRosterUI();
+      openModal(profileModal);
+    });
+
+    document.getElementById('closeProfileModalBtn').addEventListener('click', () => closeModal(profileModal));
+    profileModal.addEventListener('click', (e) => {
+      if (e.target === profileModal) closeModal(profileModal);
+    });
+
+    // Native Date Jump
+    nativeDatePicker.value = state.selectedDate;
+    nativeDatePicker.addEventListener('change', (e) => {
+      if (e.target.value) {
+        state.selectedDate = e.target.value;
+        renderAll();
+      }
+    });
+
+    // PWA Install Prompt Capture
+    let deferredPrompt = null;
+    const installBtn = document.getElementById('installBtn');
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.classList.remove('hidden');
+    });
+
+    installBtn.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        installBtn.classList.add('hidden');
+      }
+      deferredPrompt = null;
+    });
+
+    // Inline Service Worker Registration for Offline Shell Caching
+    if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+      const swCode = `
+        const CACHE_NAME = 'taskity-v1';
+        self.addEventListener('install', (e) => {
+          self.skipWaiting();
         });
-      });
+        self.addEventListener('activate', (e) => {
+          e.waitUntil(clients.claim());
+        });
+        self.addEventListener('fetch', (e) => {
+          if (e.request.method !== 'GET') return;
+          e.respondWith(
+            fetch(e.request).catch(() => caches.match(e.request))
+          );
+        });
+      `;
+      const swBlob = new Blob([swCode], { type: 'application/javascript' });
+      navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
     }
 
-    // -------------------------------------------------------------------------
     // Boot Application
-    // -------------------------------------------------------------------------
-    lucide.createIcons();
     renderAll();
-    initFirestoreSync();
+    initFirebase();
 
-    // Prompt first-time employee to enter their name smoothly
+    // Prompt employee check-in on first visit
     if (!state.currentUser) {
-      setTimeout(() => openProfileModal(), 650);
+      setTimeout(() => openModal(profileModal), 500);
     }
   </script>
 </body>
