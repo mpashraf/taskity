@@ -65,7 +65,7 @@
       const manifest = {
         name: 'Taskity · Team Daily Flow',
         short_name: 'Taskity',
-        description: 'Employee task creation, strict overlap blocking, series scoping on edit, daily & monthly billable hours',
+        description: 'Daily 6 AM morning pending task popup & browser alert support, live metrics, and quick navigation',
         start_url: './',
         display: 'standalone',
         background_color: '#0f172a',
@@ -192,6 +192,11 @@
             App
           </button>
 
+          <button type="button" id="openMorning6amBtn" title="Preview 6:00 AM Morning Pending Popup"
+            class="bg-amber-400/20 hover:bg-amber-400/30 text-amber-200 text-[11px] font-bold px-2.5 py-1.5 rounded-xl border border-amber-300/30 transition shrink-0">
+            6AM
+          </button>
+
           <button id="profileBtn" class="flex items-center gap-2 bg-white/10 hover:bg-white/15 active:scale-95 transition pl-1.5 pr-3 py-1 rounded-full border border-white/15">
             <div id="userAvatarBadge" class="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center text-xs font-bold text-slate-950 shadow-inner">
               ?
@@ -309,16 +314,16 @@
         </div>
 
         <div class="grid grid-cols-2 gap-2 mb-3">
-          <label class="flex items-center justify-between gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-slate-100 transition">
+          <label class="flex items-center justify-between gap-1 px-2 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-slate-100 transition min-w-0 overflow-hidden">
             <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 shrink-0">Day</span>
             <input type="date" id="billableDateInput"
-              class="bg-transparent text-xs font-bold text-slate-800 focus:outline-none w-full text-right cursor-pointer" />
+              class="bg-transparent text-[11px] font-bold text-slate-800 focus:outline-none min-w-0 flex-1 text-right cursor-pointer" />
           </label>
 
-          <label class="flex items-center justify-between gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-slate-100 transition">
+          <label class="flex items-center justify-between gap-1 px-2 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-slate-100 transition min-w-0 overflow-hidden">
             <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-600 shrink-0">Month</span>
             <input type="month" id="billableMonthInput"
-              class="bg-transparent text-xs font-bold text-slate-800 focus:outline-none w-full text-right cursor-pointer" />
+              class="bg-transparent text-[11px] font-bold text-slate-800 focus:outline-none min-w-0 flex-1 text-right cursor-pointer" />
           </label>
         </div>
 
@@ -329,7 +334,7 @@
     </section>
 
     <!-- Main Task Feed -->
-    <main id="taskListContainer" class="flex-1 px-5 pt-2 pb-28 space-y-3.5">
+    <main id="taskListContainer" class="flex-1 px-5 pt-2 pb-36 space-y-3.5">
       <div id="loadingSkeleton" class="space-y-3 pt-2">
         <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm animate-pulse">
           <div class="h-4 bg-slate-200 rounded w-1/3 mb-3"></div>
@@ -339,17 +344,43 @@
       </div>
     </main>
 
-    <!-- Floating Action Button (FAB) -->
-    <div class="fixed bottom-0 left-0 right-0 flex justify-center pointer-events-none z-20 safe-bottom">
-      <div class="w-full max-w-[480px] px-5 flex justify-end">
-        <button id="openCreateModalBtn" class="pointer-events-auto group flex items-center gap-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 active:scale-95 text-white font-display font-bold text-sm px-5 py-3.5 rounded-2xl shadow-xl shadow-indigo-600/30 transition-all">
-          <svg class="w-5 h-5 transition-transform group-hover:rotate-90" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-          </svg>
-          <span>New Task</span>
-        </button>
+    <!-- Fixed Bottom Menu Bar with Live Relevant Data & Quick Actions -->
+    <nav id="fixedBottomBar" aria-label="Quick navigation and live summary"
+      class="fixed bottom-0 left-0 right-0 flex justify-center pointer-events-none z-20 safe-bottom">
+      <div class="w-full max-w-[480px] px-3.5">
+        <div class="pointer-events-auto bg-slate-900/95 backdrop-blur-md text-white border border-white/15 rounded-2xl px-2 py-1.5 shadow-2xl flex items-center justify-between gap-1">
+          <!-- Today / Selected Day Feed -->
+          <button type="button" data-nav-action="today"
+            class="bottom-nav-btn flex-1 py-1.5 px-2 rounded-xl flex flex-col items-center justify-center transition bg-white/15 text-white">
+            <span class="text-xs font-extrabold leading-none" id="bottomNavDayHrs">0.00h</span>
+            <span class="text-[10px] font-semibold text-cyan-300 mt-1 leading-none">Day Hrs</span>
+          </button>
+
+          <!-- Pending Tasks Queue -->
+          <button type="button" data-nav-action="pending"
+            class="bottom-nav-btn flex-1 py-1.5 px-2 rounded-xl flex flex-col items-center justify-center transition text-slate-300 hover:bg-white/10">
+            <span class="text-xs font-extrabold leading-none text-amber-300" id="bottomNavPendingCount">0</span>
+            <span class="text-[10px] font-semibold mt-1 leading-none">Pending</span>
+          </button>
+
+          <!-- Billable Hours Card Jump -->
+          <button type="button" data-nav-action="billable"
+            class="bottom-nav-btn flex-1 py-1.5 px-2 rounded-xl flex flex-col items-center justify-center transition text-slate-300 hover:bg-white/10">
+            <span class="text-xs font-extrabold leading-none text-emerald-300" id="bottomNavMonthHrs">0.00h</span>
+            <span class="text-[10px] font-semibold mt-1 leading-none">Month</span>
+          </button>
+
+          <!-- Primary Create Task Action -->
+          <button type="button" id="openCreateModalBtn"
+            class="group shrink-0 flex items-center gap-1.5 bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-400 hover:to-violet-400 active:scale-95 text-white font-display font-bold text-xs px-3.5 py-2.5 rounded-xl shadow-lg shadow-indigo-600/30 transition-all">
+            <svg class="w-4 h-4 transition-transform group-hover:rotate-90" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            <span>New</span>
+          </button>
+        </div>
       </div>
-    </div>
+    </nav>
 
     <!-- Floating Bottom Drawer: Create / Edit Task -->
     <div id="taskModal" class="fixed inset-0 z-40 hidden items-end justify-center bg-slate-950/55 backdrop-blur-[2px] px-3 pb-3 sm:px-4 sm:pb-5">
@@ -358,7 +389,7 @@
         <div class="flex items-start justify-between gap-3 mb-5">
           <div>
             <h3 id="taskModalTitle" class="font-display text-xl font-extrabold text-slate-900 leading-tight">Assign Daily Task</h3>
-            <p id="taskModalSubtitle" class="text-xs text-slate-500 mt-1">Set planned start & end dates, recurring cadence, and work hours.</p>
+            <p id="taskModalSubtitle" class="text-xs text-slate-500 mt-1">Pick a task date, optional repeat days, and work hours.</p>
           </div>
           <button id="closeTaskModalBtn" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200 shrink-0 transition">
             ✕
@@ -529,6 +560,45 @@
 
         <div id="employeeCheckInList" class="space-y-2.5 mt-4">
           <!-- Roster selection buttons injected here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Daily 6:00 AM Morning Pending Tasks Popup Modal -->
+    <div id="morning6amModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/65 backdrop-blur-[2px] px-4">
+      <div class="w-full max-w-[432px] bg-white rounded-[28px] p-6 shadow-2xl border border-slate-100 card-enter max-h-[85vh] flex flex-col">
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg font-extrabold shrink-0">
+              6AM
+            </div>
+            <div>
+              <p class="text-[10px] font-extrabold uppercase tracking-wider text-amber-700">Daily Morning Briefing</p>
+              <h3 class="font-display text-lg font-extrabold text-slate-900 leading-tight">Pending Tasks for Today</h3>
+            </div>
+          </div>
+          <button type="button" id="closeMorning6amBtn" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200 shrink-0 transition">
+            ✕
+          </button>
+        </div>
+
+        <p class="text-xs text-slate-500 mb-3" id="morning6amSubtitle">
+          Tasks due on or before today that still need action.
+        </p>
+
+        <div id="morning6amTaskList" class="space-y-2 overflow-y-auto pr-0.5 flex-1 max-h-[52vh]">
+          <!-- Populated dynamically -->
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5 pt-4 mt-3 border-t border-slate-100">
+          <button type="button" id="morning6amTestBtn"
+            class="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition">
+            Test 6 AM Popup
+          </button>
+          <button type="button" id="morning6amViewPendingBtn"
+            class="py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition">
+            Open Pending List
+          </button>
         </div>
       </div>
     </div>
@@ -833,12 +903,20 @@
       return Number(task.progress || 0) === 100;
     }
 
+    function hasTaskDayArrived(task) {
+      return Boolean(task.date) && task.date <= todayISO;
+    }
+
     function isTaskUnfinishedFromEarlierDate(task, referenceDateISO = state.selectedDate) {
-      return !isTaskCompleted(task) && Boolean(task.date) && task.date < referenceDateISO;
+      if (isTaskCompleted(task) || !task.date) return false;
+      // Do not show future tasks or future recurring dates in Pending until that day arrives
+      if (task.date > todayISO) return false;
+      const capDate = referenceDateISO < todayISO ? referenceDateISO : todayISO;
+      return task.date < capDate;
     }
 
     function getAllIncompleteTasks() {
-      return state.tasks.filter(t => !isTaskCompleted(t));
+      return state.tasks.filter(t => !isTaskCompleted(t) && hasTaskDayArrived(t));
     }
 
     function calculateDurationHours(startTime, endTime) {
@@ -1577,8 +1655,8 @@
     function renderPulseHeader() {
       if (state.filter === 'pending_all') {
         const allPending = getAllIncompleteTasks();
-        selectedDaySubtitle.textContent = 'All-Time Pending Queue';
-        selectedDateHeading.textContent = 'All Unfinished Tasks';
+        selectedDaySubtitle.textContent = 'Due & Unfinished (Future Dates Hidden)';
+        selectedDateHeading.textContent = 'Pending Tasks';
         dayCompletionPct.textContent = String(allPending.length);
         dayTaskFraction.textContent = 'pending across dates';
         dayMasterBar.style.width = state.tasks.length === 0
@@ -1858,6 +1936,38 @@
       });
     }
 
+    function renderBottomBar() {
+      const targetDay = state.billableDate || state.selectedDate;
+      const targetMonthKey = state.billableMonth || getMonthKey(targetDay);
+      const focusedEmp = getActiveEmployeeFocus();
+
+      const dayHrs = focusedEmp
+        ? computeEmployeeBillableStats(focusedEmp, targetDay, targetMonthKey).dailyHours
+        : EMPLOYEES.reduce((sum, emp) => sum + computeEmployeeBillableStats(emp, targetDay, targetMonthKey).dailyHours, 0);
+
+      const monthHrs = focusedEmp
+        ? computeEmployeeBillableStats(focusedEmp, targetDay, targetMonthKey).monthlyHours
+        : EMPLOYEES.reduce((sum, emp) => sum + computeEmployeeBillableStats(emp, targetDay, targetMonthKey).monthlyHours, 0);
+
+      const pendingCount = getAllIncompleteTasks().length;
+
+      const dayEl = document.getElementById('bottomNavDayHrs');
+      const monthEl = document.getElementById('bottomNavMonthHrs');
+      const pendEl = document.getElementById('bottomNavPendingCount');
+      if (dayEl) dayEl.textContent = formatHours(dayHrs);
+      if (monthEl) monthEl.textContent = formatHours(monthHrs);
+      if (pendEl) pendEl.textContent = String(pendingCount);
+
+      document.querySelectorAll('.bottom-nav-btn').forEach(btn => {
+        const act = btn.dataset.navAction;
+        const isActive = (act === 'pending' && state.filter === 'pending_all') ||
+          (act === 'today' && state.filter !== 'pending_all');
+        btn.classList.toggle('bg-white/15', isActive);
+        btn.classList.toggle('text-white', isActive);
+        btn.classList.toggle('text-slate-300', !isActive);
+      });
+    }
+
     function renderAll() {
       updateUserBadge();
       renderEmployeeRosterUI();
@@ -1866,6 +1976,7 @@
       renderPulseHeader();
       renderBillableSummary();
       renderTasks();
+      renderBottomBar();
     }
 
     // =========================================================================
@@ -1913,18 +2024,7 @@
         specificDays: state.selectedSpecificDays
       });
 
-      if (recType === 'daily') {
-        occurrenceCountHint.textContent = `Repeats daily (${occDates.length} upcoming occurrences from ${formatHumanDate(dateVal)}).`;
-      } else if (recType === 'weekly') {
-        const wdName = WEEKDAY_NAMES[parseLocalDate(dateVal).getDay()];
-        occurrenceCountHint.textContent = `Repeats weekly on ${wdName} (${occDates.length} upcoming occurrences).`;
-      } else if (recType === 'monthly') {
-        const dom = parseLocalDate(dateVal).getDate();
-        occurrenceCountHint.textContent = `Repeats monthly on day ${dom} (${occDates.length} upcoming occurrences).`;
-      } else {
-        const chosenNames = state.selectedSpecificDays.map(d => WEEKDAY_NAMES[d]).join(', ') || 'None';
-        occurrenceCountHint.textContent = `Repeats on ${chosenNames} (${occDates.length} upcoming occurrences).`;
-      }
+      occurrenceCountHint.textContent = `Shown on each scheduled date (${occDates.length} dates); only due dates appear in Pending.`;
     }
 
     document.querySelectorAll('.weekday-toggle').forEach(btn => {
@@ -2024,7 +2124,7 @@
       const scopeBox = document.getElementById('seriesEditScopeBox');
       if (scopeBox) scopeBox.classList.add('hidden');
       taskModalTitle.textContent = 'Assign Daily Task';
-      taskModalSubtitle.textContent = 'Set planned start & end dates, recurring cadence, and work hours.';
+      taskModalSubtitle.textContent = 'Pick a task date, optional repeat days, and work hours.';
       submitTaskBtn.textContent = 'Create & Assign Task';
 
       document.getElementById('taskForm').reset();
@@ -2095,6 +2195,27 @@
     }
 
     document.getElementById('openCreateModalBtn').addEventListener('click', openCreateTaskModal);
+
+    document.querySelectorAll('.bottom-nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const act = btn.dataset.navAction;
+        if (act === 'today') {
+          state.selectedDate = todayISO;
+          state.billableDate = todayISO;
+          state.billableMonth = getMonthKey(todayISO);
+          if (state.filter === 'pending_all') state.filter = 'all';
+          nativeDatePicker.value = state.selectedDate;
+          renderAll();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (act === 'pending') {
+          state.filter = state.filter === 'pending_all' ? 'all' : 'pending_all';
+          renderAll();
+          document.getElementById('taskListContainer')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else if (act === 'billable') {
+          document.getElementById('billableSummarySection')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      });
+    });
     document.getElementById('closeTaskModalBtn').addEventListener('click', () => closeModal(taskModal));
     taskModal.addEventListener('click', (e) => {
       if (e.target === taskModal) closeModal(taskModal);
@@ -2222,7 +2343,7 @@
 
     if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
       const swCode = `
-        const CACHE_NAME = 'taskity-v8';
+        const CACHE_NAME = 'taskity-v11';
         self.addEventListener('install', (e) => {
           self.skipWaiting();
         });
@@ -2240,8 +2361,128 @@
       navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
     }
 
+    // =========================================================================
+    // 11B. DAILY 6:00 AM MORNING PENDING TASK POPUP SCHEDULER
+    // =========================================================================
+    const morning6amModal = document.getElementById('morning6amModal');
+    const morning6amTaskList = document.getElementById('morning6amTaskList');
+    const morning6amSubtitle = document.getElementById('morning6amSubtitle');
+    const openMorning6amBtn = document.getElementById('openMorning6amBtn');
+    const closeMorning6amBtn = document.getElementById('closeMorning6amBtn');
+    const morning6amTestBtn = document.getElementById('morning6amTestBtn');
+    const morning6amViewPendingBtn = document.getElementById('morning6amViewPendingBtn');
+
+    function getPendingTasksForTodayBriefing() {
+      return getAllIncompleteTasks()
+        .filter(t => t.date <= todayISO)
+        .sort((a, b) => (a.date || '').localeCompare(b.date || '') || (a.startTime || '').localeCompare(b.startTime || ''));
+    }
+
+    function sendSystemNotificationIfPermitted(pendingTasks) {
+      if (!('Notification' in window)) return;
+      if (Notification.permission === 'granted' && pendingTasks.length > 0) {
+        try {
+          new Notification('Taskity · 6:00 AM Pending Tasks', {
+            body: `You have ${pendingTasks.length} pending task${pendingTasks.length === 1 ? '' : 's'} for today (${formatHumanDate(todayISO)}).`,
+            tag: `taskity-6am-${todayISO}`
+          });
+        } catch (e) {}
+      }
+    }
+
+    function openMorning6amPopup({ notifySystem = false } = {}) {
+      const pendingTasks = getPendingTasksForTodayBriefing();
+      const scoped = state.currentUser
+        ? pendingTasks.filter(t => t.assignee === state.currentUser)
+        : pendingTasks;
+      const listToShow = scoped.length > 0 ? scoped : pendingTasks;
+
+      morning6amSubtitle.textContent = listToShow.length > 0
+        ? `${listToShow.length} pending task${listToShow.length === 1 ? '' : 's'} for ${formatHumanDate(todayISO)}${state.currentUser && scoped.length > 0 ? ` (${state.currentUser})` : ''}.`
+        : `All caught up for ${formatHumanDate(todayISO)} — no pending tasks.`;
+
+      if (listToShow.length === 0) {
+        morning6amTaskList.innerHTML = `
+          <div class="p-5 rounded-2xl bg-emerald-50 border border-emerald-200 text-center">
+            <p class="text-sm font-bold text-emerald-900">No pending tasks for today</p>
+            <p class="text-xs text-emerald-700 mt-1">Everything due today or earlier is completed.</p>
+          </div>
+        `;
+      } else {
+        morning6amTaskList.innerHTML = listToShow.map(task => `
+          <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/90 flex items-start justify-between gap-2.5">
+            <div class="min-w-0">
+              <p class="text-xs font-extrabold text-slate-900 truncate">${escapeHTML(task.title)}</p>
+              <p class="text-[11px] text-slate-500 mt-0.5">
+                ${escapeHTML(task.assignee || 'Unassigned')} · ${escapeHTML(formatHumanDate(task.date))}
+                ${task.startTime ? ` · ${escapeHTML(formatTime12h(task.startTime))}` : ''}
+              </p>
+            </div>
+            <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 shrink-0">
+              ${Number(task.progress || 0)}%
+            </span>
+          </div>
+        `).join('');
+      }
+
+      openModal(morning6amModal);
+      if (notifySystem) {
+        sendSystemNotificationIfPermitted(listToShow);
+      }
+    }
+
+    function maybeTrigger6amPopup(force = false) {
+      const now = new Date();
+      const stampKey = `taskity_6am_shown_${todayISO}`;
+      const alreadyShownToday = localStorage.getItem(stampKey) === '1';
+
+      if (force) {
+        openMorning6amPopup({ notifySystem: true });
+        return;
+      }
+
+      // Trigger once at or after 6:00 AM on today's date
+      const isSixAmOrLater = now.getHours() > 6 || (now.getHours() === 6 && now.getMinutes() >= 0);
+      if (isSixAmOrLater && !alreadyShownToday && !state.isLoading) {
+        localStorage.setItem(stampKey, '1');
+        openMorning6amPopup({ notifySystem: true });
+      }
+    }
+
+    if (openMorning6amBtn) {
+      openMorning6amBtn.addEventListener('click', () => openMorning6amPopup({ notifySystem: false }));
+    }
+    if (closeMorning6amBtn) {
+      closeMorning6amBtn.addEventListener('click', () => closeModal(morning6amModal));
+    }
+    if (morning6amModal) {
+      morning6amModal.addEventListener('click', (e) => {
+        if (e.target === morning6amModal) closeModal(morning6amModal);
+      });
+    }
+    if (morning6amTestBtn) {
+      morning6amTestBtn.addEventListener('click', () => {
+        if ('Notification' in window && Notification.permission === 'default') {
+          Notification.requestPermission().catch(() => {});
+        }
+        openMorning6amPopup({ notifySystem: true });
+      });
+    }
+    if (morning6amViewPendingBtn) {
+      morning6amViewPendingBtn.addEventListener('click', () => {
+        closeModal(morning6amModal);
+        state.filter = 'pending_all';
+        renderAll();
+        document.getElementById('taskListContainer')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+
+    // Check every 30s so if the app stays open across 6:00 AM it pops up automatically
+    setInterval(() => maybeTrigger6amPopup(false), 30000);
+
     renderAll();
     initFirebase();
+    setTimeout(() => maybeTrigger6amPopup(false), 700);
 
     if (!state.currentUser) {
       setTimeout(() => openModal(profileModal), 500);
