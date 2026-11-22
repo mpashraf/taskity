@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Taskity" />
-  <title>Taskity · Team Daily Flow</title>
+  <title>Taskity · Team Daily Flow & Billable Hours</title>
 
   <!-- Google Fonts: Plus Jakarta Sans & Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -65,7 +65,7 @@
       const manifest = {
         name: 'Taskity · Team Daily Flow',
         short_name: 'Taskity',
-        description: 'Day-based employee task creation & live progress tracker',
+        description: 'Employee task creation, start/end time tracking, daily & monthly billable hours',
         start_url: './',
         display: 'standalone',
         background_color: '#0f172a',
@@ -213,8 +213,27 @@
             <p id="dayTaskFraction" class="text-[11px] text-slate-300">0 of 0 done</p>
           </div>
         </div>
-        <div class="w-full h-2.5 bg-slate-900/60 rounded-full overflow-hidden">
+        <div class="w-full h-2.5 bg-slate-900/60 rounded-full overflow-hidden mb-3">
           <div id="dayMasterBar" class="h-full bg-gradient-to-r from-indigo-400 via-cyan-400 to-emerald-400 rounded-full transition-all duration-500" style="width: 0%"></div>
+        </div>
+
+        <!-- Daily & Monthly Billable Hours Strip -->
+        <div class="grid grid-cols-2 gap-2.5 pt-2.5 border-t border-white/10">
+          <div class="bg-slate-950/35 rounded-xl px-3 py-2 border border-white/5">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] uppercase tracking-wider text-indigo-200 font-semibold">Daily Billable</span>
+              <span class="text-[10px] text-cyan-300 font-bold" id="dailyBillableScope">Team</span>
+            </div>
+            <p class="font-display text-sm font-extrabold text-white mt-0.5" id="dailyBillableHours">0.00h</p>
+          </div>
+
+          <div class="bg-slate-950/35 rounded-xl px-3 py-2 border border-white/5">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] uppercase tracking-wider text-emerald-200 font-semibold">Monthly Billable</span>
+              <span class="text-[10px] text-emerald-300 font-bold" id="monthlyBillableMonth">Month</span>
+            </div>
+            <p class="font-display text-sm font-extrabold text-white mt-0.5" id="monthlyBillableHours">0.00h</p>
+          </div>
         </div>
       </div>
 
@@ -257,6 +276,24 @@
       </div>
     </div>
 
+    <!-- Employee Daily & Monthly Billable Hours Summary Card -->
+    <section id="billableSummarySection" class="px-5 pt-2 pb-1">
+      <div class="bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-xs">
+        <div class="flex items-center justify-between mb-2.5">
+          <div>
+            <h3 class="font-display font-bold text-xs uppercase tracking-wider text-slate-500" id="billableBreakdownTitle">Employee Billable Hours</h3>
+            <p class="text-[11px] text-slate-400" id="billableBreakdownSubtitle">Daily (selected day) & Monthly billable totals</p>
+          </div>
+          <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200/70" id="billableBadgeText">
+            0.00h Month
+          </span>
+        </div>
+        <div id="employeeBillableRows" class="space-y-2">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+    </section>
+
     <!-- Main Task Feed -->
     <main id="taskListContainer" class="flex-1 px-5 pt-2 pb-28 space-y-3.5">
       <div id="loadingSkeleton" class="space-y-3 pt-2">
@@ -280,24 +317,26 @@
       </div>
     </div>
 
-    <!-- Floating Bottom Drawer: Create Task (Refined Spacing & Inset Margins) -->
-    <div id="createTaskModal" class="fixed inset-0 z-40 hidden items-end justify-center bg-slate-950/55 backdrop-blur-[2px] px-3 pb-3 sm:px-4 sm:pb-5">
-      <div class="w-full max-w-[452px] bg-white rounded-[28px] px-6 pt-4 drawer-safe-bottom shadow-2xl border border-slate-100 sheet-enter max-h-[88vh] overflow-y-auto">
+    <!-- Floating Bottom Drawer: Create / Edit Task -->
+    <div id="taskModal" class="fixed inset-0 z-40 hidden items-end justify-center bg-slate-950/55 backdrop-blur-[2px] px-3 pb-3 sm:px-4 sm:pb-5">
+      <div class="w-full max-w-[452px] bg-white rounded-[28px] px-6 pt-4 drawer-safe-bottom shadow-2xl border border-slate-100 sheet-enter max-h-[90vh] overflow-y-auto">
         <div class="w-11 h-1.5 bg-slate-200 rounded-full mx-auto mb-5"></div>
         <div class="flex items-start justify-between gap-3 mb-5">
           <div>
-            <h3 class="font-display text-xl font-extrabold text-slate-900 leading-tight">Assign Daily Task</h3>
-            <p class="text-xs text-slate-500 mt-1">Pick the day and employee — no hourly schedules needed.</p>
+            <h3 id="taskModalTitle" class="font-display text-xl font-extrabold text-slate-900 leading-tight">Assign Daily Task</h3>
+            <p id="taskModalSubtitle" class="text-xs text-slate-500 mt-1">Set day, start & end time, and employee.</p>
           </div>
-          <button id="closeCreateModalBtn" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200 shrink-0 transition">
+          <button id="closeTaskModalBtn" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200 shrink-0 transition">
             ✕
           </button>
         </div>
 
-        <form id="createTaskForm" class="space-y-5">
+        <form id="taskForm" class="space-y-4">
+          <input type="hidden" id="editingTaskIdInput" />
+
           <div>
             <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">What needs to be done?</label>
-            <input type="text" id="taskTitleInput" required placeholder="e.g., Audit Q4 inventory & update sheet"
+            <input type="text" id="taskTitleInput" required placeholder="e.g., Client dashboard setup & QA review"
               class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" />
           </div>
 
@@ -326,6 +365,37 @@
             </div>
           </div>
 
+          <!-- Start Time & End Time + Live Duration Preview -->
+          <div class="bg-indigo-50/60 border border-indigo-100 rounded-2xl p-3.5 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-900">Work Time Window</span>
+              <span id="liveCalculatedHoursBadge" class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-indigo-600 text-white">
+                0.00h
+              </span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Start Time</label>
+                <input type="time" id="taskStartTimeInput" value="09:00"
+                  class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-900 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1">End Time</label>
+                <input type="time" id="taskEndTimeInput" value="10:30"
+                  class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-900 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" />
+              </div>
+            </div>
+
+            <label class="flex items-center justify-between pt-1 cursor-pointer select-none">
+              <div>
+                <span class="text-xs font-bold text-slate-800 block">Billable Task</span>
+                <span class="text-[11px] text-slate-500">Include duration in daily & monthly billable hours</span>
+              </div>
+              <input type="checkbox" id="taskBillableInput" checked class="w-4 h-4 accent-indigo-600 rounded" />
+            </label>
+          </div>
+
           <div>
             <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Notes / Deliverables (Optional)</label>
             <textarea id="taskNotesInput" rows="2" placeholder="Add context, links, or checklist details..."
@@ -342,14 +412,14 @@
       </div>
     </div>
 
-    <!-- Floating Bottom Drawer: Employee Check-In Picker (Matching Inset Margins) -->
+    <!-- Floating Bottom Drawer: Employee Check-In Picker -->
     <div id="profileModal" class="fixed inset-0 z-50 hidden items-end justify-center bg-slate-950/60 backdrop-blur-[2px] px-3 pb-3 sm:px-4 sm:pb-5">
       <div class="w-full max-w-[452px] bg-white rounded-[28px] px-6 pt-4 drawer-safe-bottom shadow-2xl border border-slate-100 sheet-enter">
         <div class="w-11 h-1.5 bg-slate-200 rounded-full mx-auto mb-5"></div>
         <div class="flex items-start justify-between gap-3 mb-1.5">
           <div>
             <h3 class="font-display text-xl font-extrabold text-slate-900">Employee Check-In</h3>
-            <p class="text-xs text-slate-500 mt-1">Tap your name to track your tasks and update progress.</p>
+            <p class="text-xs text-slate-500 mt-1">Tap your name to view your tasks, billable hours & progress.</p>
           </div>
           <button id="closeProfileModalBtn" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200 shrink-0 transition">
             ✕
@@ -446,7 +516,6 @@
 
     const todayISO = formatDateISO(new Date());
 
-    // Purge any cached dummy tasks from previous builds
     function purgeLegacyDemoTasks() {
       try {
         const raw = localStorage.getItem('taskity_fallback_tasks');
@@ -472,6 +541,7 @@
       filter: 'all',
       currentUser: validSavedUser,
       selectedAssigneeForNewTask: validSavedUser || EMPLOYEES[0],
+      editingTaskId: null,
       tasks: [],
       useLocalFallback: false,
       isLoading: true
@@ -489,6 +559,14 @@
     const dayCompletionPct = document.getElementById('dayCompletionPct');
     const dayTaskFraction = document.getElementById('dayTaskFraction');
     const dayMasterBar = document.getElementById('dayMasterBar');
+    const dailyBillableHoursEl = document.getElementById('dailyBillableHours');
+    const monthlyBillableHoursEl = document.getElementById('monthlyBillableHours');
+    const dailyBillableScopeEl = document.getElementById('dailyBillableScope');
+    const monthlyBillableMonthEl = document.getElementById('monthlyBillableMonth');
+    const billableBreakdownTitleEl = document.getElementById('billableBreakdownTitle');
+    const billableBreakdownSubtitleEl = document.getElementById('billableBreakdownSubtitle');
+    const billableBadgeTextEl = document.getElementById('billableBadgeText');
+    const employeeBillableRowsEl = document.getElementById('employeeBillableRows');
     const taskListContainer = document.getElementById('taskListContainer');
     const nativeDatePicker = document.getElementById('nativeDatePicker');
     const syncDot = document.getElementById('syncDot');
@@ -500,12 +578,24 @@
     const taskAssigneeInput = document.getElementById('taskAssigneeInput');
     const employeeCheckInList = document.getElementById('employeeCheckInList');
 
-    // Modals
-    const createTaskModal = document.getElementById('createTaskModal');
+    // Modals & Form Inputs
+    const taskModal = document.getElementById('taskModal');
+    const taskModalTitle = document.getElementById('taskModalTitle');
+    const taskModalSubtitle = document.getElementById('taskModalSubtitle');
+    const submitTaskBtn = document.getElementById('submitTaskBtn');
+    const editingTaskIdInput = document.getElementById('editingTaskIdInput');
+    const taskTitleInput = document.getElementById('taskTitleInput');
+    const taskDateInput = document.getElementById('taskDateInput');
+    const taskPriorityInput = document.getElementById('taskPriorityInput');
+    const taskStartTimeInput = document.getElementById('taskStartTimeInput');
+    const taskEndTimeInput = document.getElementById('taskEndTimeInput');
+    const taskBillableInput = document.getElementById('taskBillableInput');
+    const taskNotesInput = document.getElementById('taskNotesInput');
+    const liveCalculatedHoursBadge = document.getElementById('liveCalculatedHoursBadge');
     const profileModal = document.getElementById('profileModal');
 
     // =========================================================================
-    // 5. HELPERS (INITIALS, COLORS, DATES, TOASTS)
+    // 5. HELPERS (INITIALS, COLORS, DATES, TIME & BILLABLE HOURS)
     // =========================================================================
     function getInitials(name) {
       if (!name) return '?';
@@ -540,7 +630,7 @@
     }
 
     function parseLocalDate(isoStr) {
-      const [y, m, d] = isoStr.split('-').map(Number);
+      const [y, m, d] = (isoStr || todayISO).split('-').map(Number);
       return new Date(y, m - 1, d);
     }
 
@@ -557,6 +647,53 @@
     function formatHumanDate(isoStr) {
       const d = parseLocalDate(isoStr);
       return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function getMonthKey(isoStr) {
+      return (isoStr || todayISO).slice(0, 7); // YYYY-MM
+    }
+
+    function formatMonthLabel(monthKey) {
+      const [y, m] = monthKey.split('-').map(Number);
+      const d = new Date(y, m - 1, 1);
+      return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    }
+
+    function calculateDurationHours(startTime, endTime) {
+      if (!startTime || !endTime) return 0;
+      const [sh, sm] = startTime.split(':').map(Number);
+      const [eh, em] = endTime.split(':').map(Number);
+      if ([sh, sm, eh, em].some(Number.isNaN)) return 0;
+
+      let startMins = sh * 60 + sm;
+      let endMins = eh * 60 + em;
+      if (endMins < startMins) {
+        endMins += 24 * 60; // Support overnight tasks cleanly
+      }
+      const diffMins = endMins - startMins;
+      return Math.round((diffMins / 60) * 100) / 100;
+    }
+
+    function formatTime12h(timeStr) {
+      if (!timeStr) return '';
+      const [hStr, mStr] = timeStr.split(':');
+      const h = Number(hStr);
+      const m = Number(mStr);
+      if (Number.isNaN(h) || Number.isNaN(m)) return timeStr;
+      const suffix = h >= 12 ? 'PM' : 'AM';
+      const h12 = h % 12 === 0 ? 12 : h % 12;
+      return `${h12}:${String(m).padStart(2, '0')} ${suffix}`;
+    }
+
+    function formatHours(hrs) {
+      const val = Number(hrs || 0);
+      return `${val.toFixed(2)}h`;
+    }
+
+    function getTaskBillableHours(task) {
+      const isBillable = task.billable !== false;
+      if (!isBillable) return 0;
+      return calculateDurationHours(task.startTime, task.endTime);
     }
 
     let toastTimer = null;
@@ -648,14 +785,17 @@
     }
 
     // =========================================================================
-    // 8. CRUD OPERATIONS (CREATE, UPDATE PROGRESS, DELETE)
+    // 8. CRUD OPERATIONS (CREATE, EDIT, UPDATE PROGRESS, DELETE)
     // =========================================================================
-    async function createTask({ title, assignee, date, priority, notes }) {
+    async function createTask({ title, assignee, date, priority, startTime, endTime, billable, notes }) {
       const newTask = {
         title: title.trim(),
-        assignee: assignee,
+        assignee,
         date,
         priority: priority || 'normal',
+        startTime: startTime || '09:00',
+        endTime: endTime || '10:00',
+        billable: billable !== false,
         notes: notes.trim(),
         progress: 0,
         createdBy: state.currentUser || assignee,
@@ -680,6 +820,41 @@
       saveLocalFallbackTasks(state.tasks);
       renderAll();
       showToast(`Saved locally for ${assignee}`, '💾');
+    }
+
+    async function editTask(taskId, { title, assignee, date, priority, startTime, endTime, billable, notes }) {
+      const updatedFields = {
+        title: title.trim(),
+        assignee,
+        date,
+        priority: priority || 'normal',
+        startTime: startTime || '09:00',
+        endTime: endTime || '10:00',
+        billable: billable !== false,
+        notes: notes.trim(),
+        updatedAt: Date.now()
+      };
+
+      const target = state.tasks.find(t => t.id === taskId);
+      if (target) {
+        Object.assign(target, updatedFields);
+        renderAll();
+      }
+
+      if (!state.useLocalFallback && db && !String(taskId).startsWith('local-')) {
+        try {
+          await updateDoc(doc(db, 'tasks', taskId), updatedFields);
+          showToast('Task updated', '✏️');
+          return;
+        } catch (err) {
+          console.warn('Firestore edit failed, saved locally:', err);
+          state.useLocalFallback = true;
+          setSyncStatus('local', 'Firestore Rules Blocked');
+        }
+      }
+
+      saveLocalFallbackTasks(state.tasks);
+      showToast('Task updated locally', '✏️');
     }
 
     async function updateTaskProgress(taskId, newProgress) {
@@ -734,7 +909,107 @@
     }
 
     // =========================================================================
-    // 9. UI RENDERING (ROSTER, DAY STRIP, PULSE HEADER, FILTER BAR, CARDS)
+    // 9. BILLABLE HOURS CALCULATIONS (DAILY & MONTHLY PER EMPLOYEE)
+    // =========================================================================
+    function getActiveEmployeeFocus() {
+      if (state.filter.startsWith('emp:')) {
+        return state.filter.slice(4);
+      }
+      if (state.filter === 'mine' && state.currentUser) {
+        return state.currentUser;
+      }
+      return null;
+    }
+
+    function computeEmployeeBillableStats(empName, dayISO, monthKey) {
+      const empTasks = state.tasks.filter(t => t.assignee === empName);
+      const dailyHours = empTasks
+        .filter(t => t.date === dayISO)
+        .reduce((sum, t) => sum + getTaskBillableHours(t), 0);
+
+      const monthlyHours = empTasks
+        .filter(t => getMonthKey(t.date) === monthKey)
+        .reduce((sum, t) => sum + getTaskBillableHours(t), 0);
+
+      return {
+        dailyHours: Math.round(dailyHours * 100) / 100,
+        monthlyHours: Math.round(monthlyHours * 100) / 100
+      };
+    }
+
+    function renderBillableSummary() {
+      const selectedMonthKey = getMonthKey(state.selectedDate);
+      const monthLabel = formatMonthLabel(selectedMonthKey);
+      const focusedEmp = getActiveEmployeeFocus();
+
+      monthlyBillableMonthEl.textContent = monthLabel;
+
+      const statsByEmp = EMPLOYEES.map(emp => ({
+        emp,
+        ...computeEmployeeBillableStats(emp, state.selectedDate, selectedMonthKey)
+      }));
+
+      if (focusedEmp) {
+        const currentStat = statsByEmp.find(s => s.emp === focusedEmp) || { dailyHours: 0, monthlyHours: 0 };
+        dailyBillableScopeEl.textContent = focusedEmp.split(' ')[0];
+        dailyBillableHoursEl.textContent = formatHours(currentStat.dailyHours);
+        monthlyBillableHoursEl.textContent = formatHours(currentStat.monthlyHours);
+
+        billableBreakdownTitleEl.textContent = `${focusedEmp} · Billable Hours`;
+        billableBreakdownSubtitleEl.textContent = `Daily (${formatHumanDate(state.selectedDate)}) & ${monthLabel}`;
+        billableBadgeTextEl.textContent = `${formatHours(currentStat.monthlyHours)} ${monthLabel.split(' ')[0]}`;
+
+        employeeBillableRowsEl.innerHTML = `
+          <div class="grid grid-cols-2 gap-2.5">
+            <div class="p-3 rounded-xl bg-indigo-50/80 border border-indigo-100">
+              <span class="text-[11px] font-semibold text-indigo-700 block">Selected Day</span>
+              <span class="font-display text-lg font-extrabold text-slate-900">${formatHours(currentStat.dailyHours)}</span>
+            </div>
+            <div class="p-3 rounded-xl bg-emerald-50/80 border border-emerald-100">
+              <span class="text-[11px] font-semibold text-emerald-700 block">${monthLabel} Total</span>
+              <span class="font-display text-lg font-extrabold text-slate-900">${formatHours(currentStat.monthlyHours)}</span>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const teamDailyTotal = statsByEmp.reduce((sum, s) => sum + s.dailyHours, 0);
+      const teamMonthlyTotal = statsByEmp.reduce((sum, s) => sum + s.monthlyHours, 0);
+
+      dailyBillableScopeEl.textContent = 'Team';
+      dailyBillableHoursEl.textContent = formatHours(teamDailyTotal);
+      monthlyBillableHoursEl.textContent = formatHours(teamMonthlyTotal);
+
+      billableBreakdownTitleEl.textContent = 'Employee Billable Hours';
+      billableBreakdownSubtitleEl.textContent = `Daily (${getRelativeDayLabel(state.selectedDate)}) & ${monthLabel}`;
+      billableBadgeTextEl.textContent = `${formatHours(teamMonthlyTotal)} Month`;
+
+      employeeBillableRowsEl.innerHTML = statsByEmp.map(({ emp, dailyHours, monthlyHours }) => `
+        <div class="flex items-center justify-between py-1.5 px-2.5 rounded-xl bg-slate-50 border border-slate-100">
+          <div class="flex items-center gap-2 min-w-0">
+            <div class="w-6 h-6 rounded-lg bg-gradient-to-tr ${getEmployeeGradient(emp)} text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+              ${getInitials(emp)}
+            </div>
+            <span class="text-xs font-bold text-slate-800 truncate">${escapeHTML(emp)}</span>
+          </div>
+          <div class="flex items-center gap-3 shrink-0 text-right">
+            <div>
+              <span class="text-[10px] text-slate-400 block leading-none">Day</span>
+              <span class="text-xs font-extrabold text-indigo-700">${formatHours(dailyHours)}</span>
+            </div>
+            <div class="w-[1px] h-5 bg-slate-200"></div>
+            <div>
+              <span class="text-[10px] text-slate-400 block leading-none">Month</span>
+              <span class="text-xs font-extrabold text-emerald-700">${formatHours(monthlyHours)}</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // =========================================================================
+    // 10. UI RENDERING (ROSTER, DAY STRIP, PULSE HEADER, FILTER BAR, CARDS)
     // =========================================================================
     function updateUserBadge() {
       if (state.currentUser) {
@@ -782,6 +1057,7 @@
                 : 'filter-chip whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition';
             }
           });
+          renderBillableSummary();
           renderTasks();
         };
       });
@@ -811,9 +1087,11 @@
         };
       });
 
+      const selectedMonthKey = getMonthKey(state.selectedDate);
       employeeCheckInList.innerHTML = EMPLOYEES.map(emp => {
         const isCurrent = state.currentUser === emp;
         const myTodayCount = state.tasks.filter(t => t.date === todayISO && t.assignee === emp).length;
+        const stats = computeEmployeeBillableStats(emp, state.selectedDate, selectedMonthKey);
         return `
           <button type="button" data-checkin-emp="${escapeHTML(emp)}"
             class="w-full flex items-center justify-between p-3 rounded-2xl border transition active:scale-[0.99] ${
@@ -821,16 +1099,18 @@
                 ? 'border-indigo-600 bg-indigo-50/70 shadow-xs'
                 : 'border-slate-200 bg-white hover:bg-slate-50'
             }">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-gradient-to-tr ${getEmployeeGradient(emp)} text-white font-display font-bold text-sm flex items-center justify-center shadow-xs">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-tr ${getEmployeeGradient(emp)} text-white font-display font-bold text-sm flex items-center justify-center shadow-xs shrink-0">
                 ${getInitials(emp)}
               </div>
-              <div class="text-left">
-                <p class="font-display font-bold text-sm text-slate-900">${escapeHTML(emp)}</p>
-                <p class="text-[11px] text-slate-500">${myTodayCount} ${myTodayCount === 1 ? 'task' : 'tasks'} today</p>
+              <div class="text-left min-w-0">
+                <p class="font-display font-bold text-sm text-slate-900 truncate">${escapeHTML(emp)}</p>
+                <p class="text-[11px] text-slate-500">
+                  ${myTodayCount} ${myTodayCount === 1 ? 'task' : 'tasks'} today · ${formatHours(stats.monthlyHours)} month
+                </p>
               </div>
             </div>
-            <span class="text-xs font-bold px-3 py-1 rounded-full ${
+            <span class="text-xs font-bold px-3 py-1 rounded-full shrink-0 ${
               isCurrent ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'
             }">
               ${isCurrent ? 'Active ✓' : 'Select'}
@@ -847,6 +1127,7 @@
           localStorage.setItem('taskity_user', chosen);
           updateUserBadge();
           renderEmployeeRosterUI();
+          renderBillableSummary();
           renderTasks();
           closeModal(profileModal);
           showToast(`Checked in as ${chosen}`, '👋');
@@ -970,7 +1251,7 @@
             </div>
             <h3 class="font-display font-bold text-slate-900 text-base">${emptyLabel}</h3>
             <p class="text-xs text-slate-500 mt-1 max-w-[260px] mx-auto">
-              Tap <strong>+ New Task</strong> below to assign a daily task to Rahoof, Fidha Nasreen, Suhail, Ashraf, or Anwar.
+              Tap <strong>+ New Task</strong> below to assign a daily task with start & end time.
             </p>
             <button type="button" id="emptyStateCreateBtn" class="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold shadow-sm hover:bg-indigo-700 transition">
               + Assign Task
@@ -979,7 +1260,7 @@
         `;
         const emptyBtn = document.getElementById('emptyStateCreateBtn');
         if (emptyBtn) {
-          emptyBtn.onclick = () => document.getElementById('openCreateModalBtn').click();
+          emptyBtn.onclick = () => openCreateTaskModal();
         }
         return;
       }
@@ -993,9 +1274,15 @@
           ? `Assigned by ${escapeHTML(task.createdBy)}`
           : 'Daily deliverable';
 
+        const durationHrs = calculateDurationHours(task.startTime, task.endTime);
+        const isBillable = task.billable !== false;
+        const timeRangeText = task.startTime && task.endTime
+          ? `${formatTime12h(task.startTime)} – ${formatTime12h(task.endTime)}`
+          : 'Time not set';
+
         return `
           <article data-task-id="${task.id}" class="bg-white rounded-2xl p-4 border ${isDone ? 'border-emerald-200/90 bg-emerald-50/20' : 'border-slate-200/80'} shadow-xs transition-all card-enter">
-            <!-- Top Row: Assignee + Priority + Delete -->
+            <!-- Top Row: Assignee + Priority + Edit + Delete -->
             <div class="flex items-center justify-between gap-2 mb-2.5">
               <div class="flex items-center gap-2.5 min-w-0">
                 <div class="w-8 h-8 rounded-xl bg-gradient-to-tr ${grad} text-white font-display font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
@@ -1007,8 +1294,13 @@
                 </div>
               </div>
 
-              <div class="flex items-center gap-1.5 shrink-0">
+              <div class="flex items-center gap-1 shrink-0">
                 ${getPriorityBadge(task.priority)}
+                <button data-edit-id="${task.id}" title="Edit Task" class="edit-btn w-7 h-7 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 flex items-center justify-center transition">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </button>
                 <button data-delete-id="${task.id}" title="Delete Task" class="delete-btn w-7 h-7 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -1022,6 +1314,22 @@
               ${escapeHTML(task.title)}
             </h3>
             ${task.notes ? `<p class="text-xs text-slate-500 mt-1 leading-relaxed">${escapeHTML(task.notes)}</p>` : ''}
+
+            <!-- Start/End Time & Billable Pill -->
+            <div class="flex flex-wrap items-center gap-2 mt-2.5">
+              <span class="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700">
+                <span>🕒</span>
+                <span>${escapeHTML(timeRangeText)}</span>
+                <span class="text-slate-400">(${formatHours(durationHrs)})</span>
+              </span>
+              <span class="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-lg ${
+                isBillable
+                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/70'
+                  : 'bg-amber-50 text-amber-700 border border-amber-200/70'
+              }">
+                ${isBillable ? `💼 Billable · ${formatHours(durationHrs)}` : '⏸️ Non-Billable'}
+              </span>
+            </div>
 
             <!-- Interactive Progress Bar + Slider -->
             <div class="mt-4 pt-3 border-t border-slate-100">
@@ -1093,6 +1401,12 @@
         });
       });
 
+      document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          openEditTaskModal(btn.dataset.editId);
+        });
+      });
+
       document.querySelectorAll('.delete-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           deleteTask(btn.dataset.deleteId);
@@ -1105,11 +1419,12 @@
       renderEmployeeRosterUI();
       renderDayStrip();
       renderPulseHeader();
+      renderBillableSummary();
       renderTasks();
     }
 
     // =========================================================================
-    // 10. EVENT LISTENERS (MODALS, FORMS, FILTERS, PWA INSTALL)
+    // 11. EVENT LISTENERS (CREATE/EDIT DRAWER, CHECK-IN DRAWER, FILTERS)
     // =========================================================================
     function openModal(modalEl) {
       modalEl.classList.remove('hidden');
@@ -1121,42 +1436,111 @@
       modalEl.classList.remove('flex');
     }
 
-    document.getElementById('openCreateModalBtn').addEventListener('click', () => {
-      document.getElementById('taskDateInput').value = state.selectedDate;
+    function refreshLiveHoursPreview() {
+      const hrs = calculateDurationHours(taskStartTimeInput.value, taskEndTimeInput.value);
+      const isBillable = taskBillableInput.checked;
+      liveCalculatedHoursBadge.textContent = isBillable
+        ? `${formatHours(hrs)} Billable`
+        : `${formatHours(hrs)} Non-Billable`;
+      liveCalculatedHoursBadge.className = isBillable
+        ? 'text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-indigo-600 text-white'
+        : 'text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-amber-500 text-white';
+    }
+
+    taskStartTimeInput.addEventListener('change', refreshLiveHoursPreview);
+    taskEndTimeInput.addEventListener('change', refreshLiveHoursPreview);
+    taskBillableInput.addEventListener('change', refreshLiveHoursPreview);
+
+    function openCreateTaskModal() {
+      state.editingTaskId = null;
+      editingTaskIdInput.value = '';
+      taskModalTitle.textContent = 'Assign Daily Task';
+      taskModalSubtitle.textContent = 'Set day, start & end time, and employee.';
+      submitTaskBtn.textContent = 'Create & Assign Task';
+
+      document.getElementById('taskForm').reset();
+      taskDateInput.value = state.selectedDate;
+      taskStartTimeInput.value = '09:00';
+      taskEndTimeInput.value = '10:30';
+      taskBillableInput.checked = true;
+
       if (state.currentUser) {
         state.selectedAssigneeForNewTask = state.currentUser;
+      } else if (!state.selectedAssigneeForNewTask) {
+        state.selectedAssigneeForNewTask = EMPLOYEES[0];
       }
+
       renderEmployeeRosterUI();
-      openModal(createTaskModal);
-      setTimeout(() => document.getElementById('taskTitleInput').focus(), 150);
+      refreshLiveHoursPreview();
+      openModal(taskModal);
+      setTimeout(() => taskTitleInput.focus(), 150);
+    }
+
+    function openEditTaskModal(taskId) {
+      const task = state.tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      state.editingTaskId = task.id;
+      editingTaskIdInput.value = task.id;
+      taskModalTitle.textContent = 'Edit Task';
+      taskModalSubtitle.textContent = 'Update details, employee, day, or start & end time.';
+      submitTaskBtn.textContent = 'Save Task Changes';
+
+      taskTitleInput.value = task.title || '';
+      taskDateInput.value = task.date || state.selectedDate;
+      taskPriorityInput.value = task.priority || 'normal';
+      taskStartTimeInput.value = task.startTime || '09:00';
+      taskEndTimeInput.value = task.endTime || '10:00';
+      taskBillableInput.checked = task.billable !== false;
+      taskNotesInput.value = task.notes || '';
+      state.selectedAssigneeForNewTask = EMPLOYEES.includes(task.assignee) ? task.assignee : EMPLOYEES[0];
+
+      renderEmployeeRosterUI();
+      refreshLiveHoursPreview();
+      openModal(taskModal);
+      setTimeout(() => taskTitleInput.focus(), 150);
+    }
+
+    document.getElementById('openCreateModalBtn').addEventListener('click', openCreateTaskModal);
+    document.getElementById('closeTaskModalBtn').addEventListener('click', () => closeModal(taskModal));
+    taskModal.addEventListener('click', (e) => {
+      if (e.target === taskModal) closeModal(taskModal);
     });
 
-    document.getElementById('closeCreateModalBtn').addEventListener('click', () => closeModal(createTaskModal));
-    createTaskModal.addEventListener('click', (e) => {
-      if (e.target === createTaskModal) closeModal(createTaskModal);
-    });
-
-    document.getElementById('createTaskForm').addEventListener('submit', async (e) => {
+    document.getElementById('taskForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const title = document.getElementById('taskTitleInput').value;
+      const title = taskTitleInput.value;
       const assignee = state.selectedAssigneeForNewTask || EMPLOYEES[0];
-      const date = document.getElementById('taskDateInput').value;
-      const priority = document.getElementById('taskPriorityInput').value;
-      const notes = document.getElementById('taskNotesInput').value;
+      const date = taskDateInput.value;
+      const priority = taskPriorityInput.value;
+      const startTime = taskStartTimeInput.value;
+      const endTime = taskEndTimeInput.value;
+      const billable = taskBillableInput.checked;
+      const notes = taskNotesInput.value;
 
       if (!title.trim() || !assignee) return;
 
-      const btn = document.getElementById('submitTaskBtn');
-      btn.disabled = true;
-      btn.textContent = 'Assigning...';
+      const isEditing = Boolean(state.editingTaskId);
+      submitTaskBtn.disabled = true;
+      submitTaskBtn.textContent = isEditing ? 'Saving...' : 'Assigning...';
 
-      await createTask({ title, assignee, date, priority, notes });
+      if (isEditing) {
+        await editTask(state.editingTaskId, {
+          title, assignee, date, priority, startTime, endTime, billable, notes
+        });
+      } else {
+        await createTask({
+          title, assignee, date, priority, startTime, endTime, billable, notes
+        });
+      }
 
-      btn.disabled = false;
-      btn.textContent = 'Create & Assign Task';
+      submitTaskBtn.disabled = false;
+      submitTaskBtn.textContent = isEditing ? 'Save Task Changes' : 'Create & Assign Task';
       e.target.reset();
+      state.editingTaskId = null;
       state.selectedDate = date;
-      closeModal(createTaskModal);
+      nativeDatePicker.value = state.selectedDate;
+      closeModal(taskModal);
       renderAll();
     });
 
@@ -1202,7 +1586,7 @@
     // Inline Service Worker Registration for Offline Shell Caching
     if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
       const swCode = `
-        const CACHE_NAME = 'taskity-v1';
+        const CACHE_NAME = 'taskity-v2';
         self.addEventListener('install', (e) => {
           self.skipWaiting();
         });
@@ -1224,7 +1608,6 @@
     renderAll();
     initFirebase();
 
-    // Prompt employee check-in on first visit
     if (!state.currentUser) {
       setTimeout(() => openModal(profileModal), 500);
     }
