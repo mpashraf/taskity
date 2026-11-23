@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Taskity" />
+  <title>Taskity · Team Daily Flow & Billable Hours</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366e1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Canvas Confetti for 100% Task Completion -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- Dynamic PWA Manifest & App Icon -->
+  <script>
+    (function setupPWA() {
+      const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+        <defs>
+          <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#4f46e5"/>
+            <stop offset="100%" stop-color="#06b6d4"/>
+          </linearGradient>
+        </defs>
+        <rect width="512" height="512" rx="120" fill="url(#g)"/>
+        <path d="M150 265 L220 335 L365 180" fill="none" stroke="#ffffff" stroke-width="46" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>`;
+      const iconUrl = 'data:image/svg+xml;base64,' + btoa(iconSvg);
+
+      const appleIcon = document.createElement('link');
+      appleIcon.rel = 'apple-touch-icon';
+      appleIcon.href = iconUrl;
+      document.head.appendChild(appleIcon);
+
+      const manifest = {
+        name: 'Taskity · Team Daily Flow',
+        short_name: 'Taskity',
+        description: 'Daily 6 AM morning pending task popup & browser alert support, live metrics, and quick navigation',
+        start_url: './',
+        display: 'standalone',
+        background_color: '#0f172a',
+        theme_color: '#4f46e5',
+        orientation: 'portrait',
+        icons: [
+          { src: iconUrl, sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
+          { src: iconUrl, sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' }
+        ]
+      };
+      const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+      const manifestLink = document.createElement('link');
+      manifestLink.rel = 'manifest';
+      manifestLink.href = URL.createObjectURL(manifestBlob);
+      document.head.appendChild(manifestLink);
+    })();
+  </script>
+
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+    body {
+      background-color: #e2e8f0;
+      margin: 0;
+      padding: 0;
+      overscroll-behavior-y: none;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    input[type="range"].progress-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      outline: none;
+      transition: background 0.15s ease;
+    }
+    input[type="range"].progress-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 3px solid #4f46e5;
+      box-shadow: 0 3px 10px rgba(79, 70, 229, 0.35);
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+    input[type="range"].progress-slider::-webkit-slider-thumb:active {
+      transform: scale(1.18);
+    }
+    input[type="range"].progress-slider::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 3px solid #4f46e5;
+      box-shadow: 0 3px 10px rgba(79, 70, 229, 0.35);
+      cursor: pointer;
+    }
+    .safe-top {
+      padding-top: max(1rem, env(safe-area-inset-top));
+    }
+    .safe-bottom {
+      padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+    }
+    .drawer-safe-bottom {
+      padding-bottom: max(1.75rem, calc(env(safe-area-inset-bottom) + 1rem));
+    }
+    @keyframes slideUp {
+      from { transform: translateY(24px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .sheet-enter {
+      animation: slideUp 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes popIn {
+      0% { transform: scale(0.96); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .card-enter {
+      animation: popIn 0.22s ease-out forwards;
+    }
+    @keyframes thumbPop {
+      0% { transform: scale(1); }
+      45% { transform: scale(1.26) rotate(-8deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+    .thumb-pop {
+      animation: thumbPop 0.28s ease-out;
+    }
+  </style>
+</head>
+<body class="font-sans text-slate-800 antialiased flex justify-center min-h-screen">
+
+  <!-- Mobile App Shell -->
+  <div id="app" class="w-full max-w-[480px] bg-slate-50 min-h-screen shadow-2xl relative flex flex-col overflow-x-hidden">
+
+    <!-- Top Dark Gradient Header -->
+    <header class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white safe-top px-5 pb-6 rounded-b-[2rem] shadow-lg relative z-10">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-cyan-400 flex items-center justify-center shadow-md shadow-indigo-500/30">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <div>
+            <h1 class="font-display font-extrabold text-lg tracking-tight leading-none">Taskity</h1>
+            <div class="flex items-center gap-1.5 mt-1">
+              <span id="syncDot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+              <span id="syncLabel" class="text-[11px] text-slate-300 font-medium">Connecting Firestore...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Employee Pill & PWA Install Trigger -->
+        <div class="flex items-center gap-2">
+          <button id="installBtn" class="hidden bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-white/15 transition flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+            </svg>
+            App
+          </button>
+
+          <button type="button" id="openMorning6amBtn" title="Preview 6:00 AM Morning Pending Popup"
+            class="bg-amber-400/20 hover:bg-amber-400/30 text-amber-200 text-[11px] font-bold px-2.5 py-1.5 rounded-xl border border-amber-300/30 transition shrink-0">
+            6AM
+          </button>
+
+          <button id="profileBtn" class="flex items-center gap-2 bg-white/10 hover:bg-white/15 active:scale-95 transition pl-1.5 pr-3 py-1 rounded-full border border-white/15">
+            <div id="userAvatarBadge" class="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center text-xs font-bold text-slate-950 shadow-inner">
+              ?
+            </div>
+            <span id="userNameBadge" class="text-xs font-semibold text-white max-w-[100px] truncate">Select Staff</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Daily Team Pulse Card -->
+      <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 mb-4">
+        <div class="flex items-end justify-between mb-2">
+          <div>
+            <p class="text-[11px] uppercase tracking-wider text-indigo-200 font-semibold" id="selectedDaySubtitle">Today's Team Pulse</p>
+            <h2 class="font-display text-xl font-bold text-white mt-0.5" id="selectedDateHeading">Loading day...</h2>
+          </div>
+          <div class="text-right">
+            <span id="dayCompletionPct" class="font-display text-2xl font-extrabold text-cyan-300">0%</span>
+            <p id="dayTaskFraction" class="text-[11px] text-slate-300">0 of 0 done</p>
+          </div>
+        </div>
+        <div class="w-full h-2.5 bg-slate-900/60 rounded-full overflow-hidden mb-3">
+          <div id="dayMasterBar" class="h-full bg-gradient-to-r from-indigo-400 via-cyan-400 to-emerald-400 rounded-full transition-all duration-500" style="width: 0%"></div>
+        </div>
+
+        <!-- Daily & Monthly Billable Hours Strip -->
+        <div class="grid grid-cols-2 gap-2.5 pt-2.5 border-t border-white/10">
+          <div class="bg-slate-950/35 rounded-xl px-3 py-2 border border-white/5">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] uppercase tracking-wider text-indigo-200 font-semibold">Daily Billable</span>
+              <span class="text-[10px] text-cyan-300 font-bold" id="dailyBillableScope">Team</span>
+            </div>
+            <p class="font-display text-sm font-extrabold text-white mt-0.5" id="dailyBillableHours">0.00h</p>
+          </div>
+
+          <div class="bg-slate-950/35 rounded-xl px-3 py-2 border border-white/5">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] uppercase tracking-wider text-emerald-200 font-semibold">Monthly Billable</span>
+              <span class="text-[10px] text-emerald-300 font-bold" id="monthlyBillableMonth">Month</span>
+            </div>
+            <p class="font-display text-sm font-extrabold text-white mt-0.5" id="monthlyBillableHours">0.00h</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Day-Only Horizontal Strip -->
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-semibold text-slate-300">Select Day</span>
+        <label class="text-xs font-semibold text-cyan-300 hover:text-cyan-200 flex items-center gap-1 cursor-pointer">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          <span>Jump</span>
+          <input type="date" id="nativeDatePicker" class="sr-only" />
+        </label>
+      </div>
+      <div id="dayStrip" class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+        <!-- Day pills injected by JS -->
+      </div>
+    </header>
+
+    <!-- Filter Chips (Status + All-Time Pending + Team Roster) -->
+    <div class="px-5 pt-4 pb-2 flex items-center gap-2 overflow-x-auto no-scrollbar" id="filterBar">
+      <button data-filter="all" class="filter-chip active whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold bg-slate-900 text-white shadow-sm transition">
+        All Team
+      </button>
+      <button data-filter="pending_all" class="filter-chip whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition flex items-center gap-1.5">
+        <span>Pending Tasks</span>
+        <span id="pendingAllCountBadge" class="text-[10px] font-extrabold px-1.5 py-0.2 rounded-full bg-amber-600 text-white">0</span>
+      </button>
+      <button data-filter="mine" class="filter-chip whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition">
+        My Tasks
+      </button>
+      <button data-filter="active" class="filter-chip whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition">
+        In Progress
+      </button>
+      <button data-filter="done" class="filter-chip whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition">
+        Completed
+      </button>
+      <div class="h-4 w-[1px] bg-slate-300 shrink-0 mx-0.5"></div>
+      <div id="employeeFilterChips" class="flex items-center gap-2">
+        <!-- Team member filter chips injected by JS -->
+      </div>
+    </div>
+
+    <!-- All-Time Unfinished Carryover Banner -->
+    <section id="carryoverBannerSection" class="px-5 pt-2 hidden">
+      <div class="bg-amber-50/90 border border-amber-200/90 rounded-2xl px-3.5 py-2.5 flex items-center justify-between gap-2 shadow-2xs">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="text-sm shrink-0">⏳</span>
+          <p class="text-xs font-semibold text-amber-950 truncate" id="carryoverBannerText">
+            0 unfinished tasks from earlier dates
+          </p>
+        </div>
+        <button type="button" id="viewAllPendingBtn" class="text-[11px] font-extrabold px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-700 text-white shrink-0 transition">
+          View All
+        </button>
+      </div>
+    </section>
+
+    <!-- Employee Daily & Monthly Billable Hours Summary Card -->
+    <section id="billableSummarySection" class="px-5 pt-2 pb-1">
+      <div class="bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-xs">
+        <div class="flex items-center justify-between gap-2 mb-2.5">
+          <div class="min-w-0">
+            <h3 class="font-display font-bold text-xs uppercase tracking-wider text-slate-500" id="billableBreakdownTitle">Employee Billable Hours</h3>
+            <p class="text-[11px] text-slate-400 truncate" id="billableBreakdownSubtitle">Daily & monthly billable totals</p>
+          </div>
+          <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200/70 shrink-0" id="billableBadgeText">
+            0.00h Month
+          </span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 mb-3">
+          <label class="flex items-center justify-between gap-1 px-2 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-slate-100 transition min-w-0 overflow-hidden">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 shrink-0">Day</span>
+            <input type="date" id="billableDateInput"
+              class="bg-transparent text-[11px] font-bold text-slate-800 focus:outline-none min-w-0 flex-1 text-right cursor-pointer" />
+          </label>
+
+          <label class="flex items-center justify-between gap-1 px-2 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-slate-100 transition min-w-0 overflow-hidden">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-600 shrink-0">Month</span>
+            <input type="month" id="billableMonthInput"
+              class="bg-transparent text-[11px] font-bold text-slate-800 focus:outline-none min-w-0 flex-1 text-right cursor-pointer" />
+          </label>
+        </div>
+
+        <div id="employeeBillableRows" class="space-y-2">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Task Feed -->
+    <main id="taskListContainer" class="flex-1 px-5 pt-2 pb-36 space-y-3.5">
+      <div id="loadingSkeleton" class="space-y-3 pt-2">
+        <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm animate-pulse">
+          <div class="h-4 bg-slate-200 rounded w-1/3 mb-3"></div>
+          <div class="h-5 bg-slate-200 rounded w-3/4 mb-4"></div>
+          <div class="h-3 bg-slate-100 rounded w-full"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Fixed Bottom Menu Bar with Live Relevant Data & Quick Actions -->
+    <nav id="fixedBottomBar" aria-label="Quick navigation and live summary"
+      class="fixed bottom-0 left-0 right-0 flex justify-center pointer-events-none z-20 safe-bottom">
+      <div class="w-full max-w-[480px] px-3.5">
+        <div class="pointer-events-auto bg-slate-900/95 backdrop-blur-md text-white border border-white/15 rounded-2xl px-2 py-1.5 shadow-2xl flex items-center justify-between gap-1">
+          <!-- Today / Selected Day Feed -->
+          <button type="button" data-nav-action="today"
+            class="bottom-nav-btn flex-1 py-1.5 px-2 rounded-xl flex flex-col items-center justify-center transition bg-white/15 text-white">
+            <span class="text-xs font-extrabold leading-none" id="bottomNavDayHrs">0.00h</span>
+            <span class="text-[10px] font-semibold text-cyan-300 mt-1 leading-none">Day Hrs</span>
+          </button>
+
+          <!-- Pending Tasks Queue -->
+          <button type="button" data-nav-action="pending"
+            class="bottom-nav-btn flex-1 py-1.5 px-2 rounded-xl flex flex-col items-center justify-center transition text-slate-300 hover:bg-white/10">
+            <span class="text-xs font-extrabold leading-none text-amber-300" id="bottomNavPendingCount">0</span>
+            <span class="text-[10px] font-semibold mt-1 leading-none">Pending</span>
+          </button>
+
+          <!-- Billable Hours Card Jump -->
+          <button type="button" data-nav-action="billable"
+            class="bottom-nav-btn flex-1 py-1.5 px-2 rounded-xl flex flex-col items-center justify-center transition text-slate-300 hover:bg-white/10">
+            <span class="text-xs font-extrabold leading-none text-emerald-300" id="bottomNavMonthHrs">0.00h</span>
+            <span class="text-[10px] font-semibold mt-1 leading-none">Month</span>
+          </button>
+
+          <!-- Primary Create Task Action -->
+          <button type="button" id="openCreateModalBtn"
+            class="group shrink-0 flex items-center gap-1.5 bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-400 hover:to-violet-400 active:scale-95 text-white font-display font-bold text-xs px-3.5 py-2.5 rounded-xl shadow-lg shadow-indigo-600/30 transition-all">
+            <svg class="w-4 h-4 transition-transform group-hover:rotate-90" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            <span>New</span>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Floating Bottom Drawer: Create / Edit Task -->
+    <div id="taskModal" class="fixed inset-0 z-40 hidden items-end justify-center bg-slate-950/55 backdrop-blur-[2px] px-3 pb-3 sm:px-4 sm:pb-5">
+      <div class="w-full max-w-[452px] bg-white rounded-[28px] px-6 pt-4 drawer-safe-bottom shadow-2xl border border-slate-100 sheet-enter max-h-[90vh] overflow-y-auto">
+        <div class="w-11 h-1.5 bg-slate-200 rounded-full mx-auto mb-5"></div>
+        <div class="flex items-start justify-between gap-3 mb-5">
+          <div>
+            <h3 id="taskModalTitle" class="font-display text-xl font-extrabold text-slate-900 leading-tight">Assign Daily Task</h3>
+            <p id="taskModalSubtitle" class="text-xs text-slate-500 mt-1">Pick a task date, optional repeat days, and work hours.</p>
+          </div>
+          <button id="closeTaskModalBtn" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200 shrink-0 transition">
+            ✕
+          </button>
+        </div>
+
+        <form id="taskForm" class="space-y-4">
+          <input type="hidden" id="editingTaskIdInput" />
+
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">What needs to be done?</label>
+            <input type="text" id="taskTitleInput" required placeholder="e.g., Client dashboard setup & QA review"
+              class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" />
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Assign To Employee</label>
+            <input type="hidden" id="taskAssigneeInput" required />
+            <div id="assigneePickerGrid" class="grid grid-cols-2 gap-2.5">
+              <!-- Backend employee chips injected here -->
+            </div>
+          </div>
+
+          <!-- Task Date & Priority -->
+          <div class="grid grid-cols-2 gap-3.5">
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Task Date</label>
+              <input type="date" id="taskDateInput" required
+                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Priority</label>
+              <select id="taskPriorityInput"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+                <option value="normal">⚡ Normal</option>
+                <option value="high">🔥 High Focus</option>
+                <option value="low">✨ Quick Win</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Single Recurring Flag + Conditional Recurring Options (No Planned Start/End Date) -->
+          <div class="bg-violet-50/70 border border-violet-200/80 rounded-2xl p-3.5 space-y-3">
+            <label class="flex items-center justify-between gap-3 cursor-pointer select-none">
+              <div>
+                <span class="text-xs font-bold text-violet-950 block">Recurring Task</span>
+                <span class="text-[11px] text-violet-800/80">Toggle on to choose daily, weekly, monthly, or specific days</span>
+              </div>
+              <input type="checkbox" id="taskIsRecurringInput" class="w-4 h-4 accent-violet-600 rounded shrink-0" />
+            </label>
+
+            <!-- Only shown when isRecurring is checked -->
+            <div id="recurringOptionsPanel" class="hidden space-y-3 pt-2.5 border-t border-violet-200/80">
+              <div>
+                <label class="block text-[11px] font-semibold text-violet-900 mb-1.5">Repeat Pattern</label>
+                <select id="taskRecurringTypeInput"
+                  class="w-full px-3 py-2 rounded-xl bg-white border border-violet-200 text-slate-900 font-semibold text-xs focus:outline-none focus:ring-2 focus:ring-violet-500 transition">
+                  <option value="daily">🔁 Daily</option>
+                  <option value="weekly">📅 Weekly (Same weekday each week)</option>
+                  <option value="monthly">🗓️ Monthly (Same day of month)</option>
+                  <option value="specific_days">✅ Specific Days (Pick weekdays)</option>
+                </select>
+              </div>
+
+              <!-- Specific Days Selector (Shown when "specific_days" is chosen) -->
+              <div id="specificDaysPanel" class="hidden space-y-1.5">
+                <label class="block text-[11px] font-semibold text-violet-900">Select Specific Days</label>
+                <div id="specificDaysGrid" class="grid grid-cols-7 gap-1">
+                  <button type="button" data-weekday="0" class="weekday-toggle py-2 rounded-xl text-[11px] font-bold border border-violet-200 bg-white text-slate-700 hover:bg-violet-100 transition">Sun</button>
+                  <button type="button" data-weekday="1" class="weekday-toggle py-2 rounded-xl text-[11px] font-bold border border-violet-200 bg-white text-slate-700 hover:bg-violet-100 transition">Mon</button>
+                  <button type="button" data-weekday="2" class="weekday-toggle py-2 rounded-xl text-[11px] font-bold border border-violet-200 bg-white text-slate-700 hover:bg-violet-100 transition">Tue</button>
+                  <button type="button" data-weekday="3" class="weekday-toggle py-2 rounded-xl text-[11px] font-bold border border-violet-200 bg-white text-slate-700 hover:bg-violet-100 transition">Wed</button>
+                  <button type="button" data-weekday="4" class="weekday-toggle py-2 rounded-xl text-[11px] font-bold border border-violet-200 bg-white text-slate-700 hover:bg-violet-100 transition">Thu</button>
+                  <button type="button" data-weekday="5" class="weekday-toggle py-2 rounded-xl text-[11px] font-bold border border-violet-200 bg-white text-slate-700 hover:bg-violet-100 transition">Fri</button>
+                  <button type="button" data-weekday="6" class="weekday-toggle py-2 rounded-xl text-[11px] font-bold border border-violet-200 bg-white text-slate-700 hover:bg-violet-100 transition">Sat</button>
+                </div>
+              </div>
+
+              <p class="text-[10px] font-medium text-violet-900" id="occurrenceCountHint"></p>
+            </div>
+          </div>
+
+          <!-- Start Time & End Time + Live Duration Preview -->
+          <div class="bg-indigo-50/60 border border-indigo-100 rounded-2xl p-3.5 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-900">Work Time Window</span>
+              <span id="liveCalculatedHoursBadge" class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-indigo-600 text-white">
+                0.00h
+              </span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Start Time</label>
+                <input type="time" id="taskStartTimeInput" value="09:00"
+                  class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-900 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1">End Time</label>
+                <input type="time" id="taskEndTimeInput" value="10:30"
+                  class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-900 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" />
+              </div>
+            </div>
+
+            <label class="flex items-center justify-between pt-1 cursor-pointer select-none">
+              <div>
+                <span class="text-xs font-bold text-slate-800 block">Billable Task</span>
+                <span class="text-[11px] text-slate-500">Include duration in daily & monthly billable hours</span>
+              </div>
+              <input type="checkbox" id="taskBillableInput" checked class="w-4 h-4 accent-indigo-600 rounded" />
+            </label>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Notes / Deliverables (Optional)</label>
+            <textarea id="taskNotesInput" rows="2" placeholder="Add context, links, or checklist details..."
+              class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"></textarea>
+          </div>
+
+          <!-- Recurring Series Edit Scope Selector (Shown when editing a task with a seriesId) -->
+          <div id="seriesEditScopeBox" class="hidden rounded-2xl border border-indigo-200 bg-indigo-50/70 p-3 space-y-2">
+            <label class="block text-[11px] font-extrabold uppercase tracking-wider text-indigo-900">Recurring Series Edit Scope</label>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="flex items-center gap-2 p-2 rounded-xl bg-white border border-indigo-200 text-xs font-bold text-slate-800 cursor-pointer">
+                <input type="radio" name="seriesEditScope" value="single" checked class="accent-indigo-600" />
+                <span>This task only</span>
+              </label>
+              <label class="flex items-center gap-2 p-2 rounded-xl bg-white border border-indigo-200 text-xs font-bold text-slate-800 cursor-pointer">
+                <input type="radio" name="seriesEditScope" value="series" class="accent-indigo-600" />
+                <span>Whole series</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Live Time Overlap Conflict Banner (Strict Blocking) -->
+          <div id="overlapWarningBox" class="hidden rounded-2xl border border-rose-300 bg-rose-50 p-3 space-y-1.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-[11px] font-extrabold uppercase tracking-wider text-rose-900">🚫 Time Overlap Blocked</span>
+              <span id="overlapCountBadge" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-rose-600 text-white">0</span>
+            </div>
+            <p id="overlapWarningSummary" class="text-xs font-medium text-rose-950 leading-snug"></p>
+            <ul id="overlapConflictList" class="text-[11px] text-rose-800 space-y-0.5 list-disc pl-4"></ul>
+          </div>
+
+          <div class="pt-1">
+            <button type="submit" id="submitTaskBtn"
+              class="w-full py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-display font-bold text-sm shadow-lg shadow-indigo-600/25 transition">
+              Create & Assign Task
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Floating Bottom Drawer: Employee Check-In Picker -->
+    <div id="profileModal" class="fixed inset-0 z-50 hidden items-end justify-center bg-slate-950/60 backdrop-blur-[2px] px-3 pb-3 sm:px-4 sm:pb-5">
+      <div class="w-full max-w-[452px] bg-white rounded-[28px] px-6 pt-4 drawer-safe-bottom shadow-2xl border border-slate-100 sheet-enter">
+        <div class="w-11 h-1.5 bg-slate-200 rounded-full mx-auto mb-5"></div>
+        <div class="flex items-start justify-between gap-3 mb-1.5">
+          <div>
+            <h3 class="font-display text-xl font-extrabold text-slate-900">Employee Check-In</h3>
+            <p class="text-xs text-slate-500 mt-1">Tap your name to view your tasks, billable hours & progress.</p>
+          </div>
+          <button id="closeProfileModalBtn" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200 shrink-0 transition">
+            ✕
+          </button>
+        </div>
+
+        <div id="employeeCheckInList" class="space-y-2.5 mt-4">
+          <!-- Roster selection buttons injected here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Daily 6:00 AM Morning Pending Tasks Popup Modal -->
+    <div id="morning6amModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/65 backdrop-blur-[2px] px-4">
+      <div class="w-full max-w-[432px] bg-white rounded-[28px] p-6 shadow-2xl border border-slate-100 card-enter max-h-[85vh] flex flex-col">
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg font-extrabold shrink-0">
+              6AM
+            </div>
+            <div>
+              <p class="text-[10px] font-extrabold uppercase tracking-wider text-amber-700">Daily Morning Briefing</p>
+              <h3 class="font-display text-lg font-extrabold text-slate-900 leading-tight">Pending Tasks for Today</h3>
+            </div>
+          </div>
+          <button type="button" id="closeMorning6amBtn" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200 shrink-0 transition">
+            ✕
+          </button>
+        </div>
+
+        <p class="text-xs text-slate-500 mb-3" id="morning6amSubtitle">
+          Tasks due on or before today that still need action.
+        </p>
+
+        <div id="morning6amTaskList" class="space-y-2 overflow-y-auto pr-0.5 flex-1 max-h-[52vh]">
+          <!-- Populated dynamically -->
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5 pt-4 mt-3 border-t border-slate-100">
+          <button type="button" id="morning6amTestBtn"
+            class="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition">
+            Test 6 AM Popup
+          </button>
+          <button type="button" id="morning6amViewPendingBtn"
+            class="py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition">
+            Open Pending List
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 transform -translate-y-2">
+      <div class="bg-slate-900/95 text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-xl border border-white/10 flex items-center gap-2">
+        <span id="toastIcon">✅</span>
+        <span id="toastMsg">Saved</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Firebase & App Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      updateDoc,
+      deleteDoc,
+      doc,
+      onSnapshot,
+      query,
+      orderBy
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // =========================================================================
+    // 1. BACKEND TEAM ROSTER CONFIGURATION
+    // =========================================================================
+    const EMPLOYEES = [
+      "Rahoof",
+      "Fidha Nasreen",
+      "Suhail",
+      "Ashraf",
+      "Anwar"
+    ];
+
+    const EMPLOYEE_THEMES = {
+      "Rahoof": { bg: "from-indigo-500 to-blue-600" },
+      "Fidha Nasreen": { bg: "from-fuchsia-500 to-pink-600" },
+      "Suhail": { bg: "from-emerald-500 to-teal-600" },
+      "Ashraf": { bg: "from-amber-500 to-orange-600" },
+      "Anwar": { bg: "from-cyan-500 to-sky-600" }
+    };
+
+    const WEEKDAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const QUICK_EMOJIS = ["👏", "🔥", "🎉", "🙌", "💯", "❤️", "🚀", "✅"];
+
+    // =========================================================================
+    // 2. FIREBASE CREDENTIALS (taskity-20ead)
+    // =========================================================================
+    const firebaseConfig = {
+      apiKey: "AIzaSyCb28duF-VMO9c3dRmKuZ8DnQ2YGZjlhuo",
+      authDomain: "taskity-20ead.firebaseapp.com",
+      projectId: "taskity-20ead",
+      storageBucket: "taskity-20ead.firebasestorage.app",
+      messagingSenderId: "759655801687",
+      appId: "1:759655801687:web:4c989aeefa1a522fd75412",
+      measurementId: "G-GSTNQ7DBQV"
+    };
+
+    // =========================================================================
+    // 3. STATE MANAGEMENT
+    // =========================================================================
+    const formatDateISO = (dateObj) => {
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    };
+
+    const todayISO = formatDateISO(new Date());
+    const currentMonthKey = todayISO.slice(0, 7);
+
+    function purgeLegacyDemoTasks() {
+      try {
+        const raw = localStorage.getItem('taskity_fallback_tasks');
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        const legacyNames = ['Alex Rivera', 'Maya Lin', 'Jordan Vance', 'Samira Patel'];
+        const cleaned = parsed.filter(t =>
+          !String(t.id || '').startsWith('demo-') &&
+          !legacyNames.includes(t.assignee)
+        );
+        localStorage.setItem('taskity_fallback_tasks', JSON.stringify(cleaned));
+      } catch (e) {
+        localStorage.removeItem('taskity_fallback_tasks');
+      }
+    }
+    purgeLegacyDemoTasks();
+
+    const savedUser = localStorage.getItem('taskity_user');
+    const validSavedUser = EMPLOYEES.includes(savedUser) ? savedUser : '';
+
+    let state = {
+      selectedDate: todayISO,
+      billableDate: todayISO,
+      billableMonth: currentMonthKey,
+      filter: 'all',
+      currentUser: validSavedUser,
+      selectedAssigneeForNewTask: validSavedUser || EMPLOYEES[0],
+      selectedSpecificDays: [1, 3, 5],
+      editingTaskId: null,
+      expandedCommentTasks: new Set(),
+      tasks: [],
+      useLocalFallback: false,
+      isLoading: true
+    };
+
+    let db = null;
+    let tasksCollection = null;
+
+    // =========================================================================
+    // 4. DOM ELEMENTS
+    // =========================================================================
+    const dayStrip = document.getElementById('dayStrip');
+    const selectedDateHeading = document.getElementById('selectedDateHeading');
+    const selectedDaySubtitle = document.getElementById('selectedDaySubtitle');
+    const dayCompletionPct = document.getElementById('dayCompletionPct');
+    const dayTaskFraction = document.getElementById('dayTaskFraction');
+    const dayMasterBar = document.getElementById('dayMasterBar');
+    const dailyBillableHoursEl = document.getElementById('dailyBillableHours');
+    const monthlyBillableHoursEl = document.getElementById('monthlyBillableHours');
+    const dailyBillableScopeEl = document.getElementById('dailyBillableScope');
+    const monthlyBillableMonthEl = document.getElementById('monthlyBillableMonth');
+    const billableBreakdownTitleEl = document.getElementById('billableBreakdownTitle');
+    const billableBreakdownSubtitleEl = document.getElementById('billableBreakdownSubtitle');
+    const billableBadgeTextEl = document.getElementById('billableBadgeText');
+    const billableDateInput = document.getElementById('billableDateInput');
+    const billableMonthInput = document.getElementById('billableMonthInput');
+    const employeeBillableRowsEl = document.getElementById('employeeBillableRows');
+    const taskListContainer = document.getElementById('taskListContainer');
+    const nativeDatePicker = document.getElementById('nativeDatePicker');
+    const syncDot = document.getElementById('syncDot');
+    const syncLabel = document.getElementById('syncLabel');
+    const userAvatarBadge = document.getElementById('userAvatarBadge');
+    const userNameBadge = document.getElementById('userNameBadge');
+    const employeeFilterChips = document.getElementById('employeeFilterChips');
+    const assigneePickerGrid = document.getElementById('assigneePickerGrid');
+    const taskAssigneeInput = document.getElementById('taskAssigneeInput');
+    const employeeCheckInList = document.getElementById('employeeCheckInList');
+    const pendingAllCountBadge = document.getElementById('pendingAllCountBadge');
+    const carryoverBannerSection = document.getElementById('carryoverBannerSection');
+    const carryoverBannerText = document.getElementById('carryoverBannerText');
+    const viewAllPendingBtn = document.getElementById('viewAllPendingBtn');
+
+    // Modals & Form Inputs
+    const taskModal = document.getElementById('taskModal');
+    const taskModalTitle = document.getElementById('taskModalTitle');
+    const taskModalSubtitle = document.getElementById('taskModalSubtitle');
+    const submitTaskBtn = document.getElementById('submitTaskBtn');
+    const editingTaskIdInput = document.getElementById('editingTaskIdInput');
+    const taskTitleInput = document.getElementById('taskTitleInput');
+    const taskDateInput = document.getElementById('taskDateInput');
+    const taskPriorityInput = document.getElementById('taskPriorityInput');
+    const taskIsRecurringInput = document.getElementById('taskIsRecurringInput');
+    const recurringOptionsPanel = document.getElementById('recurringOptionsPanel');
+    const taskRecurringTypeInput = document.getElementById('taskRecurringTypeInput');
+    const specificDaysPanel = document.getElementById('specificDaysPanel');
+    const occurrenceCountHint = document.getElementById('occurrenceCountHint');
+    const taskStartTimeInput = document.getElementById('taskStartTimeInput');
+    const taskEndTimeInput = document.getElementById('taskEndTimeInput');
+    const taskBillableInput = document.getElementById('taskBillableInput');
+    const taskNotesInput = document.getElementById('taskNotesInput');
+    const liveCalculatedHoursBadge = document.getElementById('liveCalculatedHoursBadge');
+    const profileModal = document.getElementById('profileModal');
+
+    // =========================================================================
+    // 5. HELPERS (DATES, RECURRING GENERATOR, TIME, PROGRESS & BILLABLE HOURS)
+    // =========================================================================
+    function getInitials(name) {
+      if (!name) return '?';
+      return name
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map(part => part[0].toUpperCase())
+        .join('');
+    }
+
+    function getEmployeeGradient(name) {
+      if (EMPLOYEE_THEMES[name]) return EMPLOYEE_THEMES[name].bg;
+      const fallbacks = [
+        'from-indigo-500 to-blue-500',
+        'from-emerald-500 to-teal-500',
+        'from-fuchsia-500 to-pink-500',
+        'from-amber-500 to-orange-500',
+        'from-cyan-500 to-sky-500'
+      ];
+      let hash = 0;
+      for (let i = 0; i < (name || '').length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      return fallbacks[Math.abs(hash) % fallbacks.length];
+    }
+
+    function escapeHTML(str) {
+      const div = document.createElement('div');
+      div.textContent = str || '';
+      return div.innerHTML;
+    }
+
+    function parseLocalDate(isoStr) {
+      const [y, m, d] = (isoStr || todayISO).split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    function getRelativeDayLabel(isoStr) {
+      const target = parseLocalDate(isoStr);
+      const today = parseLocalDate(todayISO);
+      const diffDays = Math.round((target - today) / (1000 * 60 * 60 * 24));
+      if (diffDays === 0) return 'Today';
+      if (diffDays === 1) return 'Tomorrow';
+      if (diffDays === -1) return 'Yesterday';
+      return target.toLocaleDateString('en-US', { weekday: 'long' });
+    }
+
+    function formatHumanDate(isoStr) {
+      if (!isoStr) return '';
+      const d = parseLocalDate(isoStr);
+      return d.toLocaleDateString('en-US', { month
