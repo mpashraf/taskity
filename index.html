@@ -65,7 +65,7 @@
       const manifest = {
         name: 'Taskity · Team Daily Flow',
         short_name: 'Taskity',
-        description: 'Employee task creation, start/end time tracking, daily & monthly billable hours',
+        description: 'Daily 6 AM morning pending task popup & browser alert support, live metrics, and quick navigation',
         start_url: './',
         display: 'standalone',
         background_color: '#0f172a',
@@ -192,6 +192,11 @@
             App
           </button>
 
+          <button type="button" id="openMorning6amBtn" title="Preview 6:00 AM Morning Pending Popup"
+            class="bg-amber-400/20 hover:bg-amber-400/30 text-amber-200 text-[11px] font-bold px-2.5 py-1.5 rounded-xl border border-amber-300/30 transition shrink-0">
+            6AM
+          </button>
+
           <button id="profileBtn" class="flex items-center gap-2 bg-white/10 hover:bg-white/15 active:scale-95 transition pl-1.5 pr-3 py-1 rounded-full border border-white/15">
             <div id="userAvatarBadge" class="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center text-xs font-bold text-slate-950 shadow-inner">
               ?
@@ -256,10 +261,14 @@
       </div>
     </header>
 
-    <!-- Filter Chips (Status + Team Roster) -->
+    <!-- Filter Chips (Status + All-Time Pending + Team Roster) -->
     <div class="px-5 pt-4 pb-2 flex items-center gap-2 overflow-x-auto no-scrollbar" id="filterBar">
       <button data-filter="all" class="filter-chip active whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold bg-slate-900 text-white shadow-sm transition">
         All Team
+      </button>
+      <button data-filter="pending_all" class="filter-chip whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition flex items-center gap-1.5">
+        <span>Pending Tasks</span>
+        <span id="pendingAllCountBadge" class="text-[10px] font-extrabold px-1.5 py-0.2 rounded-full bg-amber-600 text-white">0</span>
       </button>
       <button data-filter="mine" class="filter-chip whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition">
         My Tasks
@@ -276,18 +285,48 @@
       </div>
     </div>
 
+    <!-- All-Time Unfinished Carryover Banner -->
+    <section id="carryoverBannerSection" class="px-5 pt-2 hidden">
+      <div class="bg-amber-50/90 border border-amber-200/90 rounded-2xl px-3.5 py-2.5 flex items-center justify-between gap-2 shadow-2xs">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="text-sm shrink-0">⏳</span>
+          <p class="text-xs font-semibold text-amber-950 truncate" id="carryoverBannerText">
+            0 unfinished tasks from earlier dates
+          </p>
+        </div>
+        <button type="button" id="viewAllPendingBtn" class="text-[11px] font-extrabold px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-700 text-white shrink-0 transition">
+          View All
+        </button>
+      </div>
+    </section>
+
     <!-- Employee Daily & Monthly Billable Hours Summary Card -->
     <section id="billableSummarySection" class="px-5 pt-2 pb-1">
       <div class="bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-xs">
-        <div class="flex items-center justify-between mb-2.5">
-          <div>
+        <div class="flex items-center justify-between gap-2 mb-2.5">
+          <div class="min-w-0">
             <h3 class="font-display font-bold text-xs uppercase tracking-wider text-slate-500" id="billableBreakdownTitle">Employee Billable Hours</h3>
-            <p class="text-[11px] text-slate-400" id="billableBreakdownSubtitle">Daily (selected day) & Monthly billable totals</p>
+            <p class="text-[11px] text-slate-400 truncate" id="billableBreakdownSubtitle">Daily & monthly billable totals</p>
           </div>
-          <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200/70" id="billableBadgeText">
+          <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200/70 shrink-0" id="billableBadgeText">
             0.00h Month
           </span>
         </div>
+
+        <div class="grid grid-cols-2 gap-2 mb-3">
+          <label class="flex items-center justify-between gap-1 px-2 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-slate-100 transition min-w-0 overflow-hidden">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 shrink-0">Day</span>
+            <input type="date" id="billableDateInput"
+              class="bg-transparent text-[11px] font-bold text-slate-800 focus:outline-none min-w-0 flex-1 text-right cursor-pointer" />
+          </label>
+
+          <label class="flex items-center justify-between gap-1 px-2 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-slate-100 transition min-w-0 overflow-hidden">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-600 shrink-0">Month</span>
+            <input type="month" id="billableMonthInput"
+              class="bg-transparent text-[11px] font-bold text-slate-800 focus:outline-none min-w-0 flex-1 text-right cursor-pointer" />
+          </label>
+        </div>
+
         <div id="employeeBillableRows" class="space-y-2">
           <!-- Injected by JS -->
         </div>
@@ -295,7 +334,7 @@
     </section>
 
     <!-- Main Task Feed -->
-    <main id="taskListContainer" class="flex-1 px-5 pt-2 pb-28 space-y-3.5">
+    <main id="taskListContainer" class="flex-1 px-5 pt-2 pb-36 space-y-3.5">
       <div id="loadingSkeleton" class="space-y-3 pt-2">
         <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm animate-pulse">
           <div class="h-4 bg-slate-200 rounded w-1/3 mb-3"></div>
@@ -305,17 +344,43 @@
       </div>
     </main>
 
-    <!-- Floating Action Button (FAB) -->
-    <div class="fixed bottom-0 left-0 right-0 flex justify-center pointer-events-none z-20 safe-bottom">
-      <div class="w-full max-w-[480px] px-5 flex justify-end">
-        <button id="openCreateModalBtn" class="pointer-events-auto group flex items-center gap-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 active:scale-95 text-white font-display font-bold text-sm px-5 py-3.5 rounded-2xl shadow-xl shadow-indigo-600/30 transition-all">
-          <svg class="w-5 h-5 transition-transform group-hover:rotate-90" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-          </svg>
-          <span>New Task</span>
-        </button>
+    <!-- Fixed Bottom Menu Bar with Live Relevant Data & Quick Actions -->
+    <nav id="fixedBottomBar" aria-label="Quick navigation and live summary"
+      class="fixed bottom-0 left-0 right-0 flex justify-center pointer-events-none z-20 safe-bottom">
+      <div class="w-full max-w-[480px] px-3.5">
+        <div class="pointer-events-auto bg-slate-900/95 backdrop-blur-md text-white border border-white/15 rounded-2xl px-2 py-1.5 shadow-2xl flex items-center justify-between gap-1">
+          <!-- Today / Selected Day Feed -->
+          <button type="button" data-nav-action="today"
+            class="bottom-nav-btn flex-1 py-1.5 px-2 rounded-xl flex flex-col items-center justify-center transition bg-white/15 text-white">
+            <span class="text-xs font-extrabold leading-none" id="bottomNavDayHrs">0.00h</span>
+            <span class="text-[10px] font-semibold text-cyan-300 mt-1 leading-none">Day Hrs</span>
+          </button>
+
+          <!-- Pending Tasks Queue -->
+          <button type="button" data-nav-action="pending"
+            class="bottom-nav-btn flex-1 py-1.5 px-2 rounded-xl flex flex-col items-center justify-center transition text-slate-300 hover:bg-white/10">
+            <span class="text-xs font-extrabold leading-none text-amber-300" id="bottomNavPendingCount">0</span>
+            <span class="text-[10px] font-semibold mt-1 leading-none">Pending</span>
+          </button>
+
+          <!-- Billable Hours Card Jump -->
+          <button type="button" data-nav-action="billable"
+            class="bottom-nav-btn flex-1 py-1.5 px-2 rounded-xl flex flex-col items-center justify-center transition text-slate-300 hover:bg-white/10">
+            <span class="text-xs font-extrabold leading-none text-emerald-300" id="bottomNavMonthHrs">0.00h</span>
+            <span class="text-[10px] font-semibold mt-1 leading-none">Month</span>
+          </button>
+
+          <!-- Primary Create Task Action -->
+          <button type="button" id="openCreateModalBtn"
+            class="group shrink-0 flex items-center gap-1.5 bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-400 hover:to-violet-400 active:scale-95 text-white font-display font-bold text-xs px-3.5 py-2.5 rounded-xl shadow-lg shadow-indigo-600/30 transition-all">
+            <svg class="w-4 h-4 transition-transform group-hover:rotate-90" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            <span>New</span>
+          </button>
+        </div>
       </div>
-    </div>
+    </nav>
 
     <!-- Floating Bottom Drawer: Create / Edit Task -->
     <div id="taskModal" class="fixed inset-0 z-40 hidden items-end justify-center bg-slate-950/55 backdrop-blur-[2px] px-3 pb-3 sm:px-4 sm:pb-5">
@@ -324,7 +389,7 @@
         <div class="flex items-start justify-between gap-3 mb-5">
           <div>
             <h3 id="taskModalTitle" class="font-display text-xl font-extrabold text-slate-900 leading-tight">Assign Daily Task</h3>
-            <p id="taskModalSubtitle" class="text-xs text-slate-500 mt-1">Set day, start & end time, and employee.</p>
+            <p id="taskModalSubtitle" class="text-xs text-slate-500 mt-1">Pick a task date, optional repeat days, and work hours.</p>
           </div>
           <button id="closeTaskModalBtn" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200 shrink-0 transition">
             ✕
@@ -348,9 +413,10 @@
             </div>
           </div>
 
+          <!-- Task Date & Priority -->
           <div class="grid grid-cols-2 gap-3.5">
             <div>
-              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Target Day</label>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Task Date</label>
               <input type="date" id="taskDateInput" required
                 class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" />
             </div>
@@ -362,6 +428,47 @@
                 <option value="high">🔥 High Focus</option>
                 <option value="low">✨ Quick Win</option>
               </select>
+            </div>
+          </div>
+
+          <!-- Single Recurring Flag + Conditional Recurring Options (No Planned Start/End Date) -->
+          <div class="bg-violet-50/70 border border-violet-200/80 rounded-2xl p-3.5 space-y-3">
+            <label class="flex items-center justify-between gap-3 cursor-pointer select-none">
+              <div>
+                <span class="text-xs font-bold text-violet-950 block">Recurring Task</span>
+                <span class="text-[11px] text-violet-800/80">Toggle on to choose daily, weekly, monthly, or specific days</span>
+              </div>
+              <input type="checkbox" id="taskIsRecurringInput" class="w-4 h-4 accent-violet-600 rounded shrink-0" />
+            </label>
+
+            <!-- Only shown when isRecurring is checked -->
+            <div id="recurringOptionsPanel" class="hidden space-y-3 pt-2.5 border-t border-violet-200/80">
+              <div>
+                <label class="block text-[11px] font-semibold text-violet-900 mb-1.5">Repeat Pattern</label>
+                <select id="taskRecurringTypeInput"
+                  class="w-full px-3 py-2 rounded-xl bg-white border border-violet-200 text-slate-900 font-semibold text-xs focus:outline-none focus:ring-2 focus:ring-violet-500 transition">
+                  <option value="daily">🔁 Daily</option>
+                  <option value="weekly">📅 Weekly (Same weekday each week)</option>
+                  <option value="monthly">🗓️ Monthly (Same day of month)</option>
+                  <option value="specific_days">✅ Specific Days (Pick weekdays)</option>
+                </select>
+              </div>
+
+              <!-- Specific Days Selector (Shown when "specific_days" is chosen) -->
+              <div id="specificDaysPanel" class="hidden space-y-1.5">
+                <label class="block text-[11px] font-semibold text-violet-900">Select Specific Days</label>
+                <div id="specificDaysGrid" class="grid grid-cols-7 gap-1">
+                  <button type="button" data-weekday="0" class="weekday-toggle py-2 rounded-xl text-[11px] font-bold border border-violet-200 bg-white text-slate-700 hover:bg-violet-100 transition">Sun</button>
+                  <button type="button" data-weekday="1" class="weekday-toggle py-2 rounded-xl text-[11px] font-bold border border-violet-200 bg-white text-slate-700 hover:bg-violet-100 transition">Mon</button>
+                  <button type="button" data-weekday="2" class="weekday-toggle py-2 rounded-xl text-[11px] font-bold border border-violet-200 bg-white text-slate-700 hover:bg-violet-100 transition">Tue</button>
+                  <button type="button" data-weekday="3" class="weekday-toggle py-2 rounded-xl text-[11px] font-bold border border-violet-200 bg-white text-slate-700 hover:bg-violet-100 transition">Wed</button>
+                  <button type="button" data-weekday="4" class="weekday-toggle py-2 rounded-xl text-[11px] font-bold border border-violet-200 bg-white text-slate-700 hover:bg-violet-100 transition">Thu</button>
+                  <button type="button" data-weekday="5" class="weekday-toggle py-2 rounded-xl text-[11px] font-bold border border-violet-200 bg-white text-slate-700 hover:bg-violet-100 transition">Fri</button>
+                  <button type="button" data-weekday="6" class="weekday-toggle py-2 rounded-xl text-[11px] font-bold border border-violet-200 bg-white text-slate-700 hover:bg-violet-100 transition">Sat</button>
+                </div>
+              </div>
+
+              <p class="text-[10px] font-medium text-violet-900" id="occurrenceCountHint"></p>
             </div>
           </div>
 
@@ -402,6 +509,31 @@
               class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"></textarea>
           </div>
 
+          <!-- Recurring Series Edit Scope Selector (Shown when editing a task with a seriesId) -->
+          <div id="seriesEditScopeBox" class="hidden rounded-2xl border border-indigo-200 bg-indigo-50/70 p-3 space-y-2">
+            <label class="block text-[11px] font-extrabold uppercase tracking-wider text-indigo-900">Recurring Series Edit Scope</label>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="flex items-center gap-2 p-2 rounded-xl bg-white border border-indigo-200 text-xs font-bold text-slate-800 cursor-pointer">
+                <input type="radio" name="seriesEditScope" value="single" checked class="accent-indigo-600" />
+                <span>This task only</span>
+              </label>
+              <label class="flex items-center gap-2 p-2 rounded-xl bg-white border border-indigo-200 text-xs font-bold text-slate-800 cursor-pointer">
+                <input type="radio" name="seriesEditScope" value="series" class="accent-indigo-600" />
+                <span>Whole series</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Live Time Overlap Conflict Banner (Strict Blocking) -->
+          <div id="overlapWarningBox" class="hidden rounded-2xl border border-rose-300 bg-rose-50 p-3 space-y-1.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-[11px] font-extrabold uppercase tracking-wider text-rose-900">🚫 Time Overlap Blocked</span>
+              <span id="overlapCountBadge" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-rose-600 text-white">0</span>
+            </div>
+            <p id="overlapWarningSummary" class="text-xs font-medium text-rose-950 leading-snug"></p>
+            <ul id="overlapConflictList" class="text-[11px] text-rose-800 space-y-0.5 list-disc pl-4"></ul>
+          </div>
+
           <div class="pt-1">
             <button type="submit" id="submitTaskBtn"
               class="w-full py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-display font-bold text-sm shadow-lg shadow-indigo-600/25 transition">
@@ -428,6 +560,45 @@
 
         <div id="employeeCheckInList" class="space-y-2.5 mt-4">
           <!-- Roster selection buttons injected here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Daily 6:00 AM Morning Pending Tasks Popup Modal -->
+    <div id="morning6amModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/65 backdrop-blur-[2px] px-4">
+      <div class="w-full max-w-[432px] bg-white rounded-[28px] p-6 shadow-2xl border border-slate-100 card-enter max-h-[85vh] flex flex-col">
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg font-extrabold shrink-0">
+              6AM
+            </div>
+            <div>
+              <p class="text-[10px] font-extrabold uppercase tracking-wider text-amber-700">Daily Morning Briefing</p>
+              <h3 class="font-display text-lg font-extrabold text-slate-900 leading-tight">Pending Tasks for Today</h3>
+            </div>
+          </div>
+          <button type="button" id="closeMorning6amBtn" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200 shrink-0 transition">
+            ✕
+          </button>
+        </div>
+
+        <p class="text-xs text-slate-500 mb-3" id="morning6amSubtitle">
+          Tasks due on or before today that still need action.
+        </p>
+
+        <div id="morning6amTaskList" class="space-y-2 overflow-y-auto pr-0.5 flex-1 max-h-[52vh]">
+          <!-- Populated dynamically -->
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5 pt-4 mt-3 border-t border-slate-100">
+          <button type="button" id="morning6amTestBtn"
+            class="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition">
+            Test 6 AM Popup
+          </button>
+          <button type="button" id="morning6amViewPendingBtn"
+            class="py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition">
+            Open Pending List
+          </button>
         </div>
       </div>
     </div>
@@ -469,30 +640,17 @@
     ];
 
     const EMPLOYEE_THEMES = {
-      "Rahoof": {
-        bg: "from-indigo-500 to-blue-600",
-        pillBg: "bg-indigo-50 text-indigo-700 border-indigo-200"
-      },
-      "Fidha Nasreen": {
-        bg: "from-fuchsia-500 to-pink-600",
-        pillBg: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200"
-      },
-      "Suhail": {
-        bg: "from-emerald-500 to-teal-600",
-        pillBg: "bg-emerald-50 text-emerald-700 border-emerald-200"
-      },
-      "Ashraf": {
-        bg: "from-amber-500 to-orange-600",
-        pillBg: "bg-amber-50 text-amber-700 border-amber-200"
-      },
-      "Anwar": {
-        bg: "from-cyan-500 to-sky-600",
-        pillBg: "bg-cyan-50 text-cyan-700 border-cyan-200"
-      }
+      "Rahoof": { bg: "from-indigo-500 to-blue-600" },
+      "Fidha Nasreen": { bg: "from-fuchsia-500 to-pink-600" },
+      "Suhail": { bg: "from-emerald-500 to-teal-600" },
+      "Ashraf": { bg: "from-amber-500 to-orange-600" },
+      "Anwar": { bg: "from-cyan-500 to-sky-600" }
     };
 
+    const WEEKDAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
     // =========================================================================
-    // 2. YOUR FIREBASE CREDENTIALS (taskity-20ead)
+    // 2. FIREBASE CREDENTIALS (taskity-20ead)
     // =========================================================================
     const firebaseConfig = {
       apiKey: "AIzaSyCb28duF-VMO9c3dRmKuZ8DnQ2YGZjlhuo",
@@ -515,6 +673,7 @@
     };
 
     const todayISO = formatDateISO(new Date());
+    const currentMonthKey = todayISO.slice(0, 7);
 
     function purgeLegacyDemoTasks() {
       try {
@@ -538,9 +697,12 @@
 
     let state = {
       selectedDate: todayISO,
+      billableDate: todayISO,
+      billableMonth: currentMonthKey,
       filter: 'all',
       currentUser: validSavedUser,
       selectedAssigneeForNewTask: validSavedUser || EMPLOYEES[0],
+      selectedSpecificDays: [1, 3, 5], // Default Mon, Wed, Fri when Specific Days is selected
       editingTaskId: null,
       tasks: [],
       useLocalFallback: false,
@@ -566,6 +728,8 @@
     const billableBreakdownTitleEl = document.getElementById('billableBreakdownTitle');
     const billableBreakdownSubtitleEl = document.getElementById('billableBreakdownSubtitle');
     const billableBadgeTextEl = document.getElementById('billableBadgeText');
+    const billableDateInput = document.getElementById('billableDateInput');
+    const billableMonthInput = document.getElementById('billableMonthInput');
     const employeeBillableRowsEl = document.getElementById('employeeBillableRows');
     const taskListContainer = document.getElementById('taskListContainer');
     const nativeDatePicker = document.getElementById('nativeDatePicker');
@@ -577,6 +741,10 @@
     const assigneePickerGrid = document.getElementById('assigneePickerGrid');
     const taskAssigneeInput = document.getElementById('taskAssigneeInput');
     const employeeCheckInList = document.getElementById('employeeCheckInList');
+    const pendingAllCountBadge = document.getElementById('pendingAllCountBadge');
+    const carryoverBannerSection = document.getElementById('carryoverBannerSection');
+    const carryoverBannerText = document.getElementById('carryoverBannerText');
+    const viewAllPendingBtn = document.getElementById('viewAllPendingBtn');
 
     // Modals & Form Inputs
     const taskModal = document.getElementById('taskModal');
@@ -587,6 +755,11 @@
     const taskTitleInput = document.getElementById('taskTitleInput');
     const taskDateInput = document.getElementById('taskDateInput');
     const taskPriorityInput = document.getElementById('taskPriorityInput');
+    const taskIsRecurringInput = document.getElementById('taskIsRecurringInput');
+    const recurringOptionsPanel = document.getElementById('recurringOptionsPanel');
+    const taskRecurringTypeInput = document.getElementById('taskRecurringTypeInput');
+    const specificDaysPanel = document.getElementById('specificDaysPanel');
+    const occurrenceCountHint = document.getElementById('occurrenceCountHint');
     const taskStartTimeInput = document.getElementById('taskStartTimeInput');
     const taskEndTimeInput = document.getElementById('taskEndTimeInput');
     const taskBillableInput = document.getElementById('taskBillableInput');
@@ -595,7 +768,7 @@
     const profileModal = document.getElementById('profileModal');
 
     // =========================================================================
-    // 5. HELPERS (INITIALS, COLORS, DATES, TIME & BILLABLE HOURS)
+    // 5. HELPERS (DATES, RECURRING GENERATOR, TIME, PROGRESS & BILLABLE HOURS)
     // =========================================================================
     function getInitials(name) {
       if (!name) return '?';
@@ -645,18 +818,105 @@
     }
 
     function formatHumanDate(isoStr) {
+      if (!isoStr) return '';
       const d = parseLocalDate(isoStr);
       return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     }
 
     function getMonthKey(isoStr) {
-      return (isoStr || todayISO).slice(0, 7); // YYYY-MM
+      return (isoStr || todayISO).slice(0, 7);
     }
 
     function formatMonthLabel(monthKey) {
-      const [y, m] = monthKey.split('-').map(Number);
-      const d = new Date(y, m - 1, 1);
+      const [y, m] = (monthKey || currentMonthKey).split('-').map(Number);
+      const d = new Date(y, (m || 1) - 1, 1);
       return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    }
+
+    /**
+     * Generates upcoming occurrence dates starting from `date` when `isRecurring` is true.
+     * Uses a default horizon (14 days for daily/specific_days, 8 weeks for weekly, 6 months for monthly)
+     * without requiring a separate planned start/end date range.
+     */
+    function generateScheduledDates({ date, isRecurring = false, recurrenceType = 'daily', specificDays = [] }) {
+      const cleanDate = date || todayISO;
+      if (!isRecurring) {
+        return [cleanDate];
+      }
+
+      const startObj = parseLocalDate(cleanDate);
+      const type = recurrenceType || 'daily';
+      const startDayOfMonth = startObj.getDate();
+      const startWeekday = startObj.getDay();
+      const chosenWeekdays = new Set((specificDays || []).map(Number));
+      if (type === 'specific_days' && chosenWeekdays.size === 0) {
+        chosenWeekdays.add(startWeekday);
+      }
+
+      const horizonDays = type === 'monthly' ? 183 : type === 'weekly' ? 56 : 14;
+      const endObj = new Date(startObj);
+      endObj.setDate(startObj.getDate() + horizonDays - 1);
+
+      const dates = [];
+      const cursor = new Date(startObj);
+
+      while (cursor <= endObj) {
+        const iso = formatDateISO(cursor);
+        const wd = cursor.getDay();
+        const dom = cursor.getDate();
+
+        let matches = false;
+        if (type === 'daily') {
+          matches = true;
+        } else if (type === 'weekly') {
+          matches = wd === startWeekday;
+        } else if (type === 'monthly') {
+          matches = dom === startDayOfMonth;
+        } else if (type === 'specific_days') {
+          matches = chosenWeekdays.has(wd);
+        }
+
+        if (matches) {
+          dates.push(iso);
+        }
+        cursor.setDate(cursor.getDate() + 1);
+      }
+
+      return dates.length > 0 ? dates : [cleanDate];
+    }
+
+    function formatRecurrenceBadge(task) {
+      const isRec = Boolean(task.isRecurring) || (task.recurrenceType && task.recurrenceType !== 'none');
+      if (!isRec) return null;
+      const type = task.recurrenceType || 'daily';
+      if (type === 'daily') return '🔁 Daily';
+      if (type === 'weekly') return '📅 Weekly';
+      if (type === 'monthly') return '🗓️ Monthly';
+      if (type === 'specific_days') {
+        const days = (task.specificDays || []).map(d => WEEKDAY_NAMES[Number(d)]).filter(Boolean);
+        return `✅ ${days.length ? days.join(', ') : 'Specific Days'}`;
+      }
+      return '🔁 Recurring';
+    }
+
+    function isTaskCompleted(task) {
+      return Number(task.progress || 0) === 100;
+    }
+
+    function hasTaskDayArrived(task) {
+      return Boolean(task.date) && task.date <= todayISO;
+    }
+
+    function isTaskUnfinishedFromEarlierDate(task, referenceDateISO = state.selectedDate) {
+      if (isTaskCompleted(task) || !task.date) return false;
+      // Do not show future tasks or future recurring dates in Pending until that day arrives
+      if (task.date > todayISO) return false;
+      const capDate = referenceDateISO < todayISO ? referenceDateISO : todayISO;
+      return task.date < capDate;
+    }
+
+    function getAllIncompleteTasks() {
+      return state.tasks.filter(t => !isTaskCompleted(t) && hasTaskDayArrived(t));
     }
 
     function calculateDurationHours(startTime, endTime) {
@@ -668,7 +928,7 @@
       let startMins = sh * 60 + sm;
       let endMins = eh * 60 + em;
       if (endMins < startMins) {
-        endMins += 24 * 60; // Support overnight tasks cleanly
+        endMins += 24 * 60;
       }
       const diffMins = endMins - startMins;
       return Math.round((diffMins / 60) * 100) / 100;
@@ -694,6 +954,75 @@
       const isBillable = task.billable !== false;
       if (!isBillable) return 0;
       return calculateDurationHours(task.startTime, task.endTime);
+    }
+    function timeToMinutes(timeStr) {
+      if (!timeStr) return null;
+      const [hStr, mStr] = timeStr.split(':');
+      const h = Number(hStr);
+      const m = Number(mStr);
+      if (Number.isNaN(h) || Number.isNaN(m)) return null;
+      return h * 60 + m;
+    }
+
+    function getTimeIntervalMinutes(startTime, endTime) {
+      const start = timeToMinutes(startTime);
+      const end = timeToMinutes(endTime);
+      if (start === null || end === null) return null;
+      let adjEnd = end;
+      if (adjEnd < start) {
+        adjEnd += 24 * 60;
+      }
+      if (adjEnd === start) return null;
+      return { start, end: adjEnd };
+    }
+
+    function intervalsOverlap(a, b) {
+      if (!a || !b) return false;
+      return a.start < b.end && b.start < a.end;
+    }
+
+    /**
+     * Finds existing tasks for the same assignee on the same date that overlap
+     * in work time window (excluding optional excludeTaskId when editing).
+     */
+    function findConflictingTasks({ assignee, occDates, startTime, endTime, excludeTaskId = null }) {
+      const targetInterval = getTimeIntervalMinutes(startTime, endTime);
+      if (!assignee || !targetInterval || !Array.isArray(occDates) || occDates.length === 0) {
+        return [];
+      }
+      const dateSet = new Set(occDates);
+      const conflicts = [];
+
+      for (const t of state.tasks) {
+        if (excludeTaskId && t.id === excludeTaskId) continue;
+        if (t.assignee !== assignee) continue;
+        if (!dateSet.has(t.date)) continue;
+
+        const existingInterval = getTimeIntervalMinutes(t.startTime, t.endTime);
+        if (intervalsOverlap(targetInterval, existingInterval)) {
+          conflicts.push(t);
+        }
+      }
+
+      return conflicts;
+    }
+
+    /**
+     * Finds existing tasks for the same assignee, date, and title (case-insensitive)
+     * to prevent duplicate occurrences when creating or regenerating a series.
+     */
+    function findDuplicateDateTitleTasks({ assignee, occDates, title, excludeTaskId = null }) {
+      const cleanTitle = (title || '').trim().toLowerCase();
+      if (!assignee || !cleanTitle || !Array.isArray(occDates) || occDates.length === 0) {
+        return [];
+      }
+      const dateSet = new Set(occDates);
+      return state.tasks.filter(t => {
+        if (excludeTaskId && t.id === excludeTaskId) return false;
+        if (t.assignee !== assignee) return false;
+        if (!dateSet.has(t.date)) return false;
+        return (t.title || '').trim().toLowerCase() === cleanTitle;
+      });
     }
 
     let toastTimer = null;
@@ -724,7 +1053,7 @@
     }
 
     // =========================================================================
-    // 6. LOCAL STORAGE FALLBACK (ONLY USED IF FIRESTORE RULES BLOCK WRITES)
+    // 6. LOCAL STORAGE FALLBACK
     // =========================================================================
     function loadLocalFallbackTasks() {
       const saved = localStorage.getItem('taskity_fallback_tasks');
@@ -785,13 +1114,54 @@
     }
 
     // =========================================================================
-    // 8. CRUD OPERATIONS (CREATE, EDIT, UPDATE PROGRESS, DELETE)
+    // 8. CRUD OPERATIONS (SUPPORTS PLANNED START/END DATES & RECURRING SERIES)
     // =========================================================================
-    async function createTask({ title, assignee, date, priority, startTime, endTime, billable, notes }) {
-      const newTask = {
+    async function createTaskBatch({
+      title, assignee, date, priority,
+      isRecurring, recurrenceType, specificDays, startTime, endTime, billable, notes
+    }) {
+      const cleanDate = date || todayISO;
+      const recFlag = Boolean(isRecurring);
+      const cleanRecType = recFlag ? (recurrenceType || 'daily') : 'none';
+      const occDates = generateScheduledDates({
+        date: cleanDate,
+        isRecurring: recFlag,
+        recurrenceType: cleanRecType,
+        specificDays
+      });
+
+      const seriesId = occDates.length > 1
+        ? `series-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+        : null;
+
+      const existingDupes = findDuplicateDateTitleTasks({
+        assignee,
+        occDates,
+        title
+      });
+      const dupeDateSet = new Set(existingDupes.map(d => d.date));
+      const newOccDates = occDates.filter(d => !dupeDateSet.has(d));
+
+      if (newOccDates.length === 0) {
+        showToast('Matching task already exists on those dates — skipped duplicate', 'ℹ️');
+        return;
+      }
+
+      const activeSeriesId = newOccDates.length > 1
+        ? (seriesId || `series-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`)
+        : null;
+
+      const baseNow = Date.now();
+      const createdDocs = newOccDates.map((occDate, idx) => ({
         title: title.trim(),
         assignee,
-        date,
+        date: occDate,
+        isRecurring: recFlag,
+        recurrenceType: cleanRecType,
+        specificDays: recFlag && cleanRecType === 'specific_days' ? [...specificDays] : [],
+        seriesId: activeSeriesId,
+        occurrenceIndex: idx + 1,
+        occurrenceTotal: newOccDates.length,
         priority: priority || 'normal',
         startTime: startTime || '09:00',
         endTime: endTime || '10:00',
@@ -799,13 +1169,24 @@
         notes: notes.trim(),
         progress: 0,
         createdBy: state.currentUser || assignee,
-        createdAt: Date.now()
-      };
+        createdAt: baseNow - idx
+      }));
+
+      if (existingDupes.length > 0) {
+        showToast(`Skipped ${existingDupes.length} duplicate date${existingDupes.length === 1 ? '' : 's'}`, 'ℹ️');
+      }
 
       if (!state.useLocalFallback && tasksCollection) {
         try {
-          await addDoc(tasksCollection, newTask);
-          showToast(`Assigned to ${assignee}`, '🚀');
+          for (const item of createdDocs) {
+            await addDoc(tasksCollection, item);
+          }
+          showToast(
+            createdDocs.length > 1
+              ? `Created ${createdDocs.length} recurring tasks for ${assignee}`
+              : `Assigned to ${assignee}`,
+            '🚀'
+          );
           return;
         } catch (err) {
           console.error('Firestore write blocked:', err.code, err.message);
@@ -815,18 +1196,35 @@
         }
       }
 
-      newTask.id = 'local-' + Date.now();
-      state.tasks.unshift(newTask);
+      createdDocs.forEach((item, i) => {
+        item.id = `local-${baseNow}-${i}`;
+        state.tasks.unshift(item);
+      });
       saveLocalFallbackTasks(state.tasks);
       renderAll();
-      showToast(`Saved locally for ${assignee}`, '💾');
+      showToast(
+        createdDocs.length > 1
+          ? `Saved ${createdDocs.length} recurring tasks locally`
+          : `Saved locally for ${assignee}`,
+        '💾'
+      );
     }
 
-    async function editTask(taskId, { title, assignee, date, priority, startTime, endTime, billable, notes }) {
+    async function editTask(taskId, {
+      title, assignee, date, priority,
+      isRecurring, recurrenceType, specificDays, startTime, endTime, billable, notes,
+      editScope = 'single'
+    }) {
+      const cleanDate = date || todayISO;
+      const recFlag = Boolean(isRecurring);
+      const cleanRecType = recFlag ? (recurrenceType || 'daily') : 'none';
       const updatedFields = {
         title: title.trim(),
         assignee,
-        date,
+        date: cleanDate,
+        isRecurring: recFlag,
+        recurrenceType: cleanRecType,
+        specificDays: recFlag && cleanRecType === 'specific_days' ? [...specificDays] : [],
         priority: priority || 'normal',
         startTime: startTime || '09:00',
         endTime: endTime || '10:00',
@@ -836,15 +1234,46 @@
       };
 
       const target = state.tasks.find(t => t.id === taskId);
+      const siblingTasks = (editScope === 'series' && target && target.seriesId)
+        ? state.tasks.filter(t => t.seriesId === target.seriesId && t.id !== taskId)
+        : [];
+
+      const sharedSeriesFields = {
+        title: title.trim(),
+        assignee,
+        isRecurring: recFlag,
+        recurrenceType: cleanRecType,
+        specificDays: recFlag && cleanRecType === 'specific_days' ? [...specificDays] : [],
+        priority: priority || 'normal',
+        startTime: startTime || '09:00',
+        endTime: endTime || '10:00',
+        billable: billable !== false,
+        notes: notes.trim(),
+        updatedAt: Date.now()
+      };
+
       if (target) {
         Object.assign(target, updatedFields);
+        for (const sib of siblingTasks) {
+          Object.assign(sib, sharedSeriesFields);
+        }
         renderAll();
       }
 
       if (!state.useLocalFallback && db && !String(taskId).startsWith('local-')) {
         try {
           await updateDoc(doc(db, 'tasks', taskId), updatedFields);
-          showToast('Task updated', '✏️');
+          for (const sib of siblingTasks) {
+            if (!String(sib.id).startsWith('local-')) {
+              await updateDoc(doc(db, 'tasks', sib.id), sharedSeriesFields);
+            }
+          }
+          showToast(
+            siblingTasks.length > 0
+              ? `Updated task + ${siblingTasks.length} recurring siblings`
+              : 'Task updated',
+            '✏️'
+          );
           return;
         } catch (err) {
           console.warn('Firestore edit failed, saved locally:', err);
@@ -889,58 +1318,6 @@
       }
 
       saveLocalFallbackTasks(state.tasks);
-    }
-
-    // =========================================================================
-    // TASK REACTIONS (LIKE, DISLIKE & APPRECIATION)
-    // =========================================================================
-    async function updateTaskReaction(taskId, reactionType) {
-      if (!state.currentUser) {
-        showToast('Please check in as an employee first', '👤');
-        openModal(profileModal);
-        return;
-      }
-
-      const allowedReactions = ['like', 'dislike', 'appreciate'];
-      if (!allowedReactions.includes(reactionType)) return;
-
-      const task = state.tasks.find(t => t.id === taskId);
-      if (!task) return;
-
-      const reactions = {
-        like: Array.isArray(task.reactions?.like) ? [...task.reactions.like] : [],
-        dislike: Array.isArray(task.reactions?.dislike) ? [...task.reactions.dislike] : [],
-        appreciate: Array.isArray(task.reactions?.appreciate) ? [...task.reactions.appreciate] : []
-      };
-      const user = state.currentUser;
-      const alreadySelected = reactions[reactionType].includes(user);
-
-      // Like and dislike are mutually exclusive; appreciation is independent.
-      if (reactionType === 'like' || reactionType === 'dislike') {
-        const opposite = reactionType === 'like' ? 'dislike' : 'like';
-        reactions[opposite] = reactions[opposite].filter(name => name !== user);
-      }
-
-      reactions[reactionType] = alreadySelected
-        ? reactions[reactionType].filter(name => name !== user)
-        : [...reactions[reactionType].filter(name => name !== user), user];
-
-      task.reactions = reactions;
-      renderTasks();
-
-      if (!state.useLocalFallback && db && !String(taskId).startsWith('local-')) {
-        try {
-          await updateDoc(doc(db, 'tasks', taskId), { reactions });
-          return;
-        } catch (err) {
-          console.warn('Reaction update failed, saving locally:', err);
-          state.useLocalFallback = true;
-          setSyncStatus('local', 'Firestore Rules Blocked');
-        }
-      }
-
-      saveLocalFallbackTasks(state.tasks);
-      showToast('Reaction saved on this device', '💾');
     }
 
     async function deleteTask(taskId) {
@@ -990,15 +1367,18 @@
     }
 
     function renderBillableSummary() {
-      const selectedMonthKey = getMonthKey(state.selectedDate);
-      const monthLabel = formatMonthLabel(selectedMonthKey);
+      const targetDay = state.billableDate || state.selectedDate;
+      const targetMonthKey = state.billableMonth || getMonthKey(targetDay);
+      const monthLabel = formatMonthLabel(targetMonthKey);
       const focusedEmp = getActiveEmployeeFocus();
 
+      billableDateInput.value = targetDay;
+      billableMonthInput.value = targetMonthKey;
       monthlyBillableMonthEl.textContent = monthLabel;
 
       const statsByEmp = EMPLOYEES.map(emp => ({
         emp,
-        ...computeEmployeeBillableStats(emp, state.selectedDate, selectedMonthKey)
+        ...computeEmployeeBillableStats(emp, targetDay, targetMonthKey)
       }));
 
       if (focusedEmp) {
@@ -1008,13 +1388,13 @@
         monthlyBillableHoursEl.textContent = formatHours(currentStat.monthlyHours);
 
         billableBreakdownTitleEl.textContent = `${focusedEmp} · Billable Hours`;
-        billableBreakdownSubtitleEl.textContent = `Daily (${formatHumanDate(state.selectedDate)}) & ${monthLabel}`;
+        billableBreakdownSubtitleEl.textContent = `Day: ${formatHumanDate(targetDay)} · Month: ${monthLabel}`;
         billableBadgeTextEl.textContent = `${formatHours(currentStat.monthlyHours)} ${monthLabel.split(' ')[0]}`;
 
         employeeBillableRowsEl.innerHTML = `
           <div class="grid grid-cols-2 gap-2.5">
             <div class="p-3 rounded-xl bg-indigo-50/80 border border-indigo-100">
-              <span class="text-[11px] font-semibold text-indigo-700 block">Selected Day</span>
+              <span class="text-[11px] font-semibold text-indigo-700 block">${formatHumanDate(targetDay)}</span>
               <span class="font-display text-lg font-extrabold text-slate-900">${formatHours(currentStat.dailyHours)}</span>
             </div>
             <div class="p-3 rounded-xl bg-emerald-50/80 border border-emerald-100">
@@ -1029,12 +1409,12 @@
       const teamDailyTotal = statsByEmp.reduce((sum, s) => sum + s.dailyHours, 0);
       const teamMonthlyTotal = statsByEmp.reduce((sum, s) => sum + s.monthlyHours, 0);
 
-      dailyBillableScopeEl.textContent = 'Team';
+      dailyBillableScopeEl.textContent = formatHumanDate(targetDay).replace(/, \d{4}$/, '');
       dailyBillableHoursEl.textContent = formatHours(teamDailyTotal);
       monthlyBillableHoursEl.textContent = formatHours(teamMonthlyTotal);
 
       billableBreakdownTitleEl.textContent = 'Employee Billable Hours';
-      billableBreakdownSubtitleEl.textContent = `Daily (${getRelativeDayLabel(state.selectedDate)}) & ${monthLabel}`;
+      billableBreakdownSubtitleEl.textContent = `Day: ${formatHumanDate(targetDay)} · Month: ${monthLabel}`;
       billableBadgeTextEl.textContent = `${formatHours(teamMonthlyTotal)} Month`;
 
       employeeBillableRowsEl.innerHTML = statsByEmp.map(({ emp, dailyHours, monthlyHours }) => `
@@ -1061,7 +1441,7 @@
     }
 
     // =========================================================================
-    // 10. UI RENDERING (ROSTER, DAY STRIP, PULSE HEADER, FILTER BAR, CARDS)
+    // 10. UI RENDERING
     // =========================================================================
     function updateUserBadge() {
       if (state.currentUser) {
@@ -1071,6 +1451,41 @@
       } else {
         userAvatarBadge.textContent = '?';
         userNameBadge.textContent = 'Select Staff';
+      }
+    }
+
+    function syncFilterChipStyles() {
+      document.querySelectorAll('.filter-chip').forEach(c => {
+        const f = c.dataset.filter;
+        const active = f === state.filter;
+        if (f.startsWith('emp:')) {
+          c.className = active
+            ? 'filter-chip whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-semibold transition flex items-center gap-1.5 bg-indigo-600 text-white shadow-sm'
+            : 'filter-chip whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-semibold transition flex items-center gap-1.5 bg-white text-slate-600 border border-slate-200 hover:bg-slate-100';
+        } else if (f === 'pending_all') {
+          c.className = active
+            ? 'filter-chip whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-600 text-white shadow-sm transition flex items-center gap-1.5'
+            : 'filter-chip whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition flex items-center gap-1.5';
+        } else {
+          c.className = active
+            ? 'filter-chip active whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold bg-slate-900 text-white shadow-sm transition'
+            : 'filter-chip whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition';
+        }
+      });
+    }
+
+    function renderPendingIndicators() {
+      const allPending = getAllIncompleteTasks();
+      const earlierPending = state.tasks.filter(t => isTaskUnfinishedFromEarlierDate(t, state.selectedDate));
+      if (pendingAllCountBadge) {
+        pendingAllCountBadge.textContent = String(allPending.length);
+      }
+
+      if (earlierPending.length > 0 && state.filter !== 'pending_all') {
+        carryoverBannerSection.classList.remove('hidden');
+        carryoverBannerText.textContent = `${earlierPending.length} unfinished ${earlierPending.length === 1 ? 'task' : 'tasks'} from earlier dates still pending`;
+      } else {
+        carryoverBannerSection.classList.add('hidden');
       }
     }
 
@@ -1097,22 +1512,14 @@
       document.querySelectorAll('.filter-chip').forEach(btn => {
         btn.onclick = () => {
           state.filter = btn.dataset.filter;
-          document.querySelectorAll('.filter-chip').forEach(c => {
-            const active = c.dataset.filter === state.filter;
-            if (c.dataset.filter.startsWith('emp:')) {
-              c.className = active
-                ? 'filter-chip whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-semibold transition flex items-center gap-1.5 bg-indigo-600 text-white shadow-sm'
-                : 'filter-chip whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-semibold transition flex items-center gap-1.5 bg-white text-slate-600 border border-slate-200 hover:bg-slate-100';
-            } else {
-              c.className = active
-                ? 'filter-chip active whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold bg-slate-900 text-white shadow-sm transition'
-                : 'filter-chip whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition';
-            }
-          });
+          syncFilterChipStyles();
+          renderPendingIndicators();
           renderBillableSummary();
           renderTasks();
         };
       });
+
+      syncFilterChipStyles();
 
       taskAssigneeInput.value = state.selectedAssigneeForNewTask;
       assigneePickerGrid.innerHTML = EMPLOYEES.map(emp => {
@@ -1139,11 +1546,13 @@
         };
       });
 
-      const selectedMonthKey = getMonthKey(state.selectedDate);
+      const targetDay = state.billableDate || state.selectedDate;
+      const targetMonthKey = state.billableMonth || getMonthKey(targetDay);
       employeeCheckInList.innerHTML = EMPLOYEES.map(emp => {
         const isCurrent = state.currentUser === emp;
         const myTodayCount = state.tasks.filter(t => t.date === todayISO && t.assignee === emp).length;
-        const stats = computeEmployeeBillableStats(emp, state.selectedDate, selectedMonthKey);
+        const myPendingCount = state.tasks.filter(t => t.assignee === emp && !isTaskCompleted(t)).length;
+        const stats = computeEmployeeBillableStats(emp, targetDay, targetMonthKey);
         return `
           <button type="button" data-checkin-emp="${escapeHTML(emp)}"
             class="w-full flex items-center justify-between p-3 rounded-2xl border transition active:scale-[0.99] ${
@@ -1158,7 +1567,7 @@
               <div class="text-left min-w-0">
                 <p class="font-display font-bold text-sm text-slate-900 truncate">${escapeHTML(emp)}</p>
                 <p class="text-[11px] text-slate-500">
-                  ${myTodayCount} ${myTodayCount === 1 ? 'task' : 'tasks'} today · ${formatHours(stats.monthlyHours)} month
+                  ${myTodayCount} today · ${myPendingCount} pending · ${formatHours(stats.monthlyHours)} (${formatMonthLabel(targetMonthKey).split(' ')[0]})
                 </p>
               </div>
             </div>
@@ -1190,7 +1599,7 @@
     function renderDayStrip() {
       const base = parseLocalDate(todayISO);
       const days = [];
-      for (let offset = -1; offset <= 10; offset++) {
+      for (let offset = -1; offset <= 13; offset++) {
         const d = new Date(base);
         d.setDate(base.getDate() + offset);
         days.push(formatDateISO(d));
@@ -1201,7 +1610,7 @@
 
       dayStrip.innerHTML = days.map(iso => {
         const d = parseLocalDate(iso);
-        const isSelected = iso === state.selectedDate;
+        const isSelected = iso === state.selectedDate && state.filter !== 'pending_all';
         const isToday = iso === todayISO;
         const dayShort = isToday
           ? 'TODAY'
@@ -1212,7 +1621,7 @@
 
         const dayTasks = state.tasks.filter(t => t.date === iso);
         const hasTasks = dayTasks.length > 0;
-        const allDone = hasTasks && dayTasks.every(t => Number(t.progress) === 100);
+        const allDone = hasTasks && dayTasks.every(t => isTaskCompleted(t));
 
         return `
           <button data-date="${iso}" class="day-pill shrink-0 w-14 py-2.5 rounded-2xl flex flex-col items-center justify-center transition-all ${
@@ -1232,6 +1641,11 @@
       dayStrip.querySelectorAll('.day-pill').forEach(btn => {
         btn.addEventListener('click', () => {
           state.selectedDate = btn.dataset.date;
+          state.billableDate = btn.dataset.date;
+          state.billableMonth = getMonthKey(btn.dataset.date);
+          if (state.filter === 'pending_all') {
+            state.filter = 'all';
+          }
           nativeDatePicker.value = state.selectedDate;
           renderAll();
         });
@@ -1239,13 +1653,25 @@
     }
 
     function renderPulseHeader() {
+      if (state.filter === 'pending_all') {
+        const allPending = getAllIncompleteTasks();
+        selectedDaySubtitle.textContent = 'Due & Unfinished (Future Dates Hidden)';
+        selectedDateHeading.textContent = 'Pending Tasks';
+        dayCompletionPct.textContent = String(allPending.length);
+        dayTaskFraction.textContent = 'pending across dates';
+        dayMasterBar.style.width = state.tasks.length === 0
+          ? '0%'
+          : `${Math.min(100, Math.round((allPending.length / state.tasks.length) * 100))}%`;
+        return;
+      }
+
       const rel = getRelativeDayLabel(state.selectedDate);
       selectedDaySubtitle.textContent = `${rel}'s Team Pulse`;
       selectedDateHeading.textContent = formatHumanDate(state.selectedDate);
 
       const dayTasks = state.tasks.filter(t => t.date === state.selectedDate);
       const total = dayTasks.length;
-      const completedCount = dayTasks.filter(t => Number(t.progress) === 100).length;
+      const completedCount = dayTasks.filter(t => isTaskCompleted(t)).length;
       const avgProgress = total === 0
         ? 0
         : Math.round(dayTasks.reduce((sum, t) => sum + Number(t.progress || 0), 0) / total);
@@ -1275,7 +1701,11 @@
     function renderTasks() {
       if (state.isLoading) return;
 
-      let filtered = state.tasks.filter(t => t.date === state.selectedDate);
+      const isAllTimePendingMode = state.filter === 'pending_all';
+
+      let filtered = isAllTimePendingMode
+        ? getAllIncompleteTasks().sort((a, b) => (a.date || '').localeCompare(b.date || '') || (b.createdAt || 0) - (a.createdAt || 0))
+        : state.tasks.filter(t => t.date === state.selectedDate || isTaskUnfinishedFromEarlierDate(t, state.selectedDate));
 
       if (state.filter === 'mine') {
         const me = state.currentUser.toLowerCase();
@@ -1283,17 +1713,28 @@
       } else if (state.filter === 'active') {
         filtered = filtered.filter(t => Number(t.progress) > 0 && Number(t.progress) < 100);
       } else if (state.filter === 'done') {
-        filtered = filtered.filter(t => Number(t.progress) === 100);
+        filtered = filtered.filter(t => isTaskCompleted(t));
       } else if (state.filter.startsWith('emp:')) {
         const targetEmp = state.filter.slice(4);
         filtered = filtered.filter(t => t.assignee === targetEmp);
       }
 
+      if (!isAllTimePendingMode) {
+        filtered.sort((a, b) => {
+          const aCarry = isTaskUnfinishedFromEarlierDate(a, state.selectedDate) ? 0 : 1;
+          const bCarry = isTaskUnfinishedFromEarlierDate(b, state.selectedDate) ? 0 : 1;
+          if (aCarry !== bCarry) return aCarry - bCarry;
+          return (b.createdAt || 0) - (a.createdAt || 0);
+        });
+      }
+
       if (filtered.length === 0) {
-        const emptyLabel = state.filter.startsWith('emp:')
-          ? `No tasks assigned to ${escapeHTML(state.filter.slice(4))} on this day`
+        const emptyLabel = isAllTimePendingMode
+          ? 'No unfinished pending tasks across any date'
+          : state.filter.startsWith('emp:')
+          ? `No tasks for ${escapeHTML(state.filter.slice(4))} on this day or pending`
           : state.filter === 'mine' && state.currentUser
-          ? `No tasks assigned to ${escapeHTML(state.currentUser)} on this day`
+          ? `No tasks for ${escapeHTML(state.currentUser)} on this day or pending`
           : `No tasks scheduled for this day`;
 
         taskListContainer.innerHTML = `
@@ -1303,7 +1744,7 @@
             </div>
             <h3 class="font-display font-bold text-slate-900 text-base">${emptyLabel}</h3>
             <p class="text-xs text-slate-500 mt-1 max-w-[260px] mx-auto">
-              Tap <strong>+ New Task</strong> below to assign a daily task with start & end time.
+              Tap <strong>+ New Task</strong> below to assign a task with planned dates, recurrence & work hours.
             </p>
             <button type="button" id="emptyStateCreateBtn" class="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold shadow-sm hover:bg-indigo-700 transition">
               + Assign Task
@@ -1322,6 +1763,9 @@
         const meta = getProgressMeta(p);
         const grad = getEmployeeGradient(task.assignee);
         const isDone = p === 100;
+        const isCarryoverPending = !isDone && Boolean(task.date) && (
+          isAllTimePendingMode ? task.date < todayISO : task.date < state.selectedDate
+        );
         const assignedByText = task.createdBy && task.createdBy !== task.assignee
           ? `Assigned by ${escapeHTML(task.createdBy)}`
           : 'Daily deliverable';
@@ -1332,8 +1776,25 @@
           ? `${formatTime12h(task.startTime)} – ${formatTime12h(task.endTime)}`
           : 'Time not set';
 
+        const recBadge = formatRecurrenceBadge(task);
+
         return `
-          <article data-task-id="${task.id}" class="bg-white rounded-2xl p-4 border ${isDone ? 'border-emerald-200/90 bg-emerald-50/20' : 'border-slate-200/80'} shadow-xs transition-all card-enter">
+          <article data-task-id="${task.id}" class="bg-white rounded-2xl p-4 border ${
+            isDone
+              ? 'border-emerald-200/90 bg-emerald-50/20'
+              : isCarryoverPending
+              ? 'border-amber-300 bg-amber-50/25'
+              : 'border-slate-200/80'
+          } shadow-xs transition-all card-enter">
+            ${isCarryoverPending ? `
+              <div class="flex items-center justify-between gap-2 mb-2.5 pb-2 border-b border-amber-200/70">
+                <span class="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-100 text-amber-800">
+                  <span>⏳ Pending from ${escapeHTML(formatHumanDate(task.date))}</span>
+                </span>
+                <span class="text-[10px] font-semibold text-amber-700">Stays until 100% done</span>
+              </div>
+            ` : ''}
+
             <!-- Top Row: Assignee + Priority + Edit + Delete -->
             <div class="flex items-center justify-between gap-2 mb-2.5">
               <div class="flex items-center gap-2.5 min-w-0">
@@ -1342,7 +1803,7 @@
                 </div>
                 <div class="min-w-0">
                   <p class="text-xs font-bold text-slate-900 truncate">${escapeHTML(task.assignee)}</p>
-                  <p class="text-[10px] text-slate-400 font-medium">${assignedByText}</p>
+                  <p class="text-[10px] text-slate-400 font-medium">${assignedByText} · Run: ${escapeHTML(formatHumanDate(task.date))}</p>
                 </div>
               </div>
 
@@ -1367,8 +1828,17 @@
             </h3>
             ${task.notes ? `<p class="text-xs text-slate-500 mt-1 leading-relaxed">${escapeHTML(task.notes)}</p>` : ''}
 
+            ${recBadge ? `
+              <div class="flex flex-wrap items-center gap-1.5 mt-2">
+                <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-lg bg-violet-50 text-violet-800 border border-violet-200/70">
+                  <span>${escapeHTML(recBadge)}</span>
+                  ${task.occurrenceTotal > 1 ? `<span class="opacity-75">(${task.occurrenceIndex}/${task.occurrenceTotal})</span>` : ''}
+                </span>
+              </div>
+            ` : ''}
+
             <!-- Start/End Time & Billable Pill -->
-            <div class="flex flex-wrap items-center gap-2 mt-2.5">
+            <div class="flex flex-wrap items-center gap-2 mt-2">
               <span class="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700">
                 <span>🕒</span>
                 <span>${escapeHTML(timeRangeText)}</span>
@@ -1424,29 +1894,6 @@
                 </button>
               </div>
             </div>
-
-            <!-- Task Appreciation & Feedback -->
-            <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-              <span class="text-[11px] font-semibold text-slate-500">Team feedback</span>
-              <div class="flex items-center gap-1.5">
-                ${(() => {
-                  const reactions = task.reactions || {};
-                  const likes = Array.isArray(reactions.like) ? reactions.like : [];
-                  const dislikes = Array.isArray(reactions.dislike) ? reactions.dislike : [];
-                  const appreciates = Array.isArray(reactions.appreciate) ? reactions.appreciate : [];
-                  const me = state.currentUser;
-                  const reactionButton = (type, emoji, count, active, title, activeClass) => `
-                    <button type="button" data-reaction-id="${escapeHTML(task.id)}" data-reaction-type="${type}"
-                      title="${title}" aria-label="${title}" aria-pressed="${active}"
-                      class="reaction-btn inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border text-xs font-semibold transition active:scale-95 ${active ? activeClass : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'}">
-                      <span>${emoji}</span><span>${count}</span>
-                    </button>`;
-                  return reactionButton('like', '👍', likes.length, likes.includes(me), 'Like this task', 'bg-blue-50 text-blue-700 border-blue-200')
-                    + reactionButton('dislike', '👎', dislikes.length, dislikes.includes(me), 'Dislike this task', 'bg-rose-50 text-rose-700 border-rose-200')
-                    + reactionButton('appreciate', '👏', appreciates.length, appreciates.includes(me), 'Appreciate this task', 'bg-amber-50 text-amber-700 border-amber-200');
-                })()}
-              </div>
-            </div>
           </article>
         `;
       }).join('');
@@ -1476,12 +1923,6 @@
         });
       });
 
-      document.querySelectorAll('.reaction-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          updateTaskReaction(btn.dataset.reactionId, btn.dataset.reactionType);
-        });
-      });
-
       document.querySelectorAll('.edit-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           openEditTaskModal(btn.dataset.editId);
@@ -1495,17 +1936,51 @@
       });
     }
 
+    function renderBottomBar() {
+      const targetDay = state.billableDate || state.selectedDate;
+      const targetMonthKey = state.billableMonth || getMonthKey(targetDay);
+      const focusedEmp = getActiveEmployeeFocus();
+
+      const dayHrs = focusedEmp
+        ? computeEmployeeBillableStats(focusedEmp, targetDay, targetMonthKey).dailyHours
+        : EMPLOYEES.reduce((sum, emp) => sum + computeEmployeeBillableStats(emp, targetDay, targetMonthKey).dailyHours, 0);
+
+      const monthHrs = focusedEmp
+        ? computeEmployeeBillableStats(focusedEmp, targetDay, targetMonthKey).monthlyHours
+        : EMPLOYEES.reduce((sum, emp) => sum + computeEmployeeBillableStats(emp, targetDay, targetMonthKey).monthlyHours, 0);
+
+      const pendingCount = getAllIncompleteTasks().length;
+
+      const dayEl = document.getElementById('bottomNavDayHrs');
+      const monthEl = document.getElementById('bottomNavMonthHrs');
+      const pendEl = document.getElementById('bottomNavPendingCount');
+      if (dayEl) dayEl.textContent = formatHours(dayHrs);
+      if (monthEl) monthEl.textContent = formatHours(monthHrs);
+      if (pendEl) pendEl.textContent = String(pendingCount);
+
+      document.querySelectorAll('.bottom-nav-btn').forEach(btn => {
+        const act = btn.dataset.navAction;
+        const isActive = (act === 'pending' && state.filter === 'pending_all') ||
+          (act === 'today' && state.filter !== 'pending_all');
+        btn.classList.toggle('bg-white/15', isActive);
+        btn.classList.toggle('text-white', isActive);
+        btn.classList.toggle('text-slate-300', !isActive);
+      });
+    }
+
     function renderAll() {
       updateUserBadge();
       renderEmployeeRosterUI();
+      renderPendingIndicators();
       renderDayStrip();
       renderPulseHeader();
       renderBillableSummary();
       renderTasks();
+      renderBottomBar();
     }
 
     // =========================================================================
-    // 11. EVENT LISTENERS (CREATE/EDIT DRAWER, CHECK-IN DRAWER, FILTERS)
+    // 11. EVENT LISTENERS (DATES, RECURRING CONTROLS, CREATE/EDIT DRAWER)
     // =========================================================================
     function openModal(modalEl) {
       modalEl.classList.remove('hidden');
@@ -1516,6 +1991,60 @@
       modalEl.classList.add('hidden');
       modalEl.classList.remove('flex');
     }
+
+    function renderSpecificDaysButtons() {
+      document.querySelectorAll('.weekday-toggle').forEach(btn => {
+        const wd = Number(btn.dataset.weekday);
+        const active = state.selectedSpecificDays.includes(wd);
+        btn.className = active
+          ? 'weekday-toggle py-2 rounded-xl text-[11px] font-bold border border-violet-600 bg-violet-600 text-white shadow-xs transition'
+          : 'weekday-toggle py-2 rounded-xl text-[11px] font-bold border border-violet-200 bg-white text-slate-700 hover:bg-violet-100 transition';
+      });
+    }
+
+    function refreshRecurringUI() {
+      const isRec = taskIsRecurringInput.checked;
+      recurringOptionsPanel.classList.toggle('hidden', !isRec);
+
+      if (!isRec) {
+        occurrenceCountHint.textContent = '';
+        return;
+      }
+
+      const dateVal = taskDateInput.value || todayISO;
+      const recType = taskRecurringTypeInput.value || 'daily';
+      const isSpecific = recType === 'specific_days';
+      specificDaysPanel.classList.toggle('hidden', !isSpecific);
+      renderSpecificDaysButtons();
+
+      const occDates = generateScheduledDates({
+        date: dateVal,
+        isRecurring: true,
+        recurrenceType: recType,
+        specificDays: state.selectedSpecificDays
+      });
+
+      occurrenceCountHint.textContent = `Shown on each scheduled date (${occDates.length} dates); only due dates appear in Pending.`;
+    }
+
+    document.querySelectorAll('.weekday-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const wd = Number(btn.dataset.weekday);
+        if (state.selectedSpecificDays.includes(wd)) {
+          if (state.selectedSpecificDays.length > 1) {
+            state.selectedSpecificDays = state.selectedSpecificDays.filter(d => d !== wd);
+          }
+        } else {
+          state.selectedSpecificDays.push(wd);
+          state.selectedSpecificDays.sort((a, b) => a - b);
+        }
+        refreshRecurringUI();
+      });
+    });
+
+    taskIsRecurringInput.addEventListener('change', refreshRecurringUI);
+    taskDateInput.addEventListener('change', refreshRecurringUI);
+    taskRecurringTypeInput.addEventListener('change', refreshRecurringUI);
 
     function refreshLiveHoursPreview() {
       const hrs = calculateDurationHours(taskStartTimeInput.value, taskEndTimeInput.value);
@@ -1528,19 +2057,82 @@
         : 'text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-amber-500 text-white';
     }
 
-    taskStartTimeInput.addEventListener('change', refreshLiveHoursPreview);
-    taskEndTimeInput.addEventListener('change', refreshLiveHoursPreview);
+    const overlapWarningBox = document.getElementById('overlapWarningBox');
+    const overlapCountBadge = document.getElementById('overlapCountBadge');
+    const overlapWarningSummary = document.getElementById('overlapWarningSummary');
+    const overlapConflictList = document.getElementById('overlapConflictList');
+
+    function getCurrentDraftOccDates() {
+      const dateVal = taskDateInput.value || todayISO;
+      const isRec = taskIsRecurringInput.checked;
+      const recType = isRec ? taskRecurringTypeInput.value : 'none';
+      return generateScheduledDates({
+        date: dateVal,
+        isRecurring: isRec,
+        recurrenceType: recType,
+        specificDays: state.selectedSpecificDays
+      });
+    }
+
+    function refreshOverlapWarning() {
+      const assignee = state.selectedAssigneeForNewTask || EMPLOYEES[0];
+      const occDates = getCurrentDraftOccDates();
+      const conflicts = findConflictingTasks({
+        assignee,
+        occDates,
+        startTime: taskStartTimeInput.value,
+        endTime: taskEndTimeInput.value,
+        excludeTaskId: state.editingTaskId
+      });
+
+      if (conflicts.length === 0) {
+        overlapWarningBox.classList.add('hidden');
+        overlapConflictList.innerHTML = '';
+        return conflicts;
+      }
+
+      overlapWarningBox.classList.remove('hidden');
+      overlapCountBadge.textContent = String(conflicts.length);
+      overlapWarningSummary.textContent = `${assignee} already has ${conflicts.length} overlapping task${conflicts.length === 1 ? '' : 's'} in this time slot.`;
+      overlapConflictList.innerHTML = conflicts.slice(0, 5).map(c =>
+        `<li><strong>${escapeHTML(formatHumanDate(c.date))}</strong> · ${escapeHTML(c.title)} (${escapeHTML(formatTime12h(c.startTime))} – ${escapeHTML(formatTime12h(c.endTime))})</li>`
+      ).join('') + (conflicts.length > 5 ? `<li>+${conflicts.length - 5} more overlapping occurrence${conflicts.length - 5 === 1 ? '' : 's'}</li>` : '');
+
+      return conflicts;
+    }
+
+    taskStartTimeInput.addEventListener('change', () => {
+      refreshLiveHoursPreview();
+      refreshOverlapWarning();
+    });
+    taskEndTimeInput.addEventListener('change', () => {
+      refreshLiveHoursPreview();
+      refreshOverlapWarning();
+    });
     taskBillableInput.addEventListener('change', refreshLiveHoursPreview);
+    taskDateInput.addEventListener('change', refreshOverlapWarning);
+    taskIsRecurringInput.addEventListener('change', refreshOverlapWarning);
+    taskRecurringTypeInput.addEventListener('change', refreshOverlapWarning);
+    document.querySelectorAll('.weekday-toggle').forEach(btn => {
+      btn.addEventListener('click', () => setTimeout(refreshOverlapWarning, 0));
+    });
+    assigneePickerGrid.addEventListener('click', () => setTimeout(refreshOverlapWarning, 0));
 
     function openCreateTaskModal() {
       state.editingTaskId = null;
       editingTaskIdInput.value = '';
+      const scopeBox = document.getElementById('seriesEditScopeBox');
+      if (scopeBox) scopeBox.classList.add('hidden');
       taskModalTitle.textContent = 'Assign Daily Task';
-      taskModalSubtitle.textContent = 'Set day, start & end time, and employee.';
+      taskModalSubtitle.textContent = 'Pick a task date, optional repeat days, and work hours.';
       submitTaskBtn.textContent = 'Create & Assign Task';
 
       document.getElementById('taskForm').reset();
       taskDateInput.value = state.selectedDate;
+      taskIsRecurringInput.checked = false;
+      taskRecurringTypeInput.value = 'daily';
+      const defaultWd = parseLocalDate(state.selectedDate).getDay();
+      state.selectedSpecificDays = [defaultWd];
       taskStartTimeInput.value = '09:00';
       taskEndTimeInput.value = '10:30';
       taskBillableInput.checked = true;
@@ -1552,7 +2144,9 @@
       }
 
       renderEmployeeRosterUI();
+      refreshRecurringUI();
       refreshLiveHoursPreview();
+      refreshOverlapWarning();
       openModal(taskModal);
       setTimeout(() => taskTitleInput.focus(), 150);
     }
@@ -1563,13 +2157,29 @@
 
       state.editingTaskId = task.id;
       editingTaskIdInput.value = task.id;
+      const scopeBox = document.getElementById('seriesEditScopeBox');
+      if (scopeBox) {
+        if (task.seriesId) {
+          scopeBox.classList.remove('hidden');
+          const singleRadio = document.querySelector('input[name="seriesEditScope"][value="single"]');
+          if (singleRadio) singleRadio.checked = true;
+        } else {
+          scopeBox.classList.add('hidden');
+        }
+      }
       taskModalTitle.textContent = 'Edit Task';
-      taskModalSubtitle.textContent = 'Update details, employee, day, or start & end time.';
+      taskModalSubtitle.textContent = 'Update planned dates, recurrence, assignee, or work hours.';
       submitTaskBtn.textContent = 'Save Task Changes';
 
       taskTitleInput.value = task.title || '';
       taskDateInput.value = task.date || state.selectedDate;
       taskPriorityInput.value = task.priority || 'normal';
+      const recEnabled = Boolean(task.isRecurring) || (task.recurrenceType && task.recurrenceType !== 'none');
+      taskIsRecurringInput.checked = recEnabled;
+      taskRecurringTypeInput.value = (task.recurrenceType && task.recurrenceType !== 'none') ? task.recurrenceType : 'daily';
+      state.selectedSpecificDays = Array.isArray(task.specificDays) && task.specificDays.length > 0
+        ? [...task.specificDays]
+        : [parseLocalDate(task.date || state.selectedDate).getDay()];
       taskStartTimeInput.value = task.startTime || '09:00';
       taskEndTimeInput.value = task.endTime || '10:00';
       taskBillableInput.checked = task.billable !== false;
@@ -1577,12 +2187,35 @@
       state.selectedAssigneeForNewTask = EMPLOYEES.includes(task.assignee) ? task.assignee : EMPLOYEES[0];
 
       renderEmployeeRosterUI();
+      refreshRecurringUI();
       refreshLiveHoursPreview();
+      refreshOverlapWarning();
       openModal(taskModal);
       setTimeout(() => taskTitleInput.focus(), 150);
     }
 
     document.getElementById('openCreateModalBtn').addEventListener('click', openCreateTaskModal);
+
+    document.querySelectorAll('.bottom-nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const act = btn.dataset.navAction;
+        if (act === 'today') {
+          state.selectedDate = todayISO;
+          state.billableDate = todayISO;
+          state.billableMonth = getMonthKey(todayISO);
+          if (state.filter === 'pending_all') state.filter = 'all';
+          nativeDatePicker.value = state.selectedDate;
+          renderAll();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (act === 'pending') {
+          state.filter = state.filter === 'pending_all' ? 'all' : 'pending_all';
+          renderAll();
+          document.getElementById('taskListContainer')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else if (act === 'billable') {
+          document.getElementById('billableSummarySection')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      });
+    });
     document.getElementById('closeTaskModalBtn').addEventListener('click', () => closeModal(taskModal));
     taskModal.addEventListener('click', (e) => {
       if (e.target === taskModal) closeModal(taskModal);
@@ -1592,8 +2225,11 @@
       e.preventDefault();
       const title = taskTitleInput.value;
       const assignee = state.selectedAssigneeForNewTask || EMPLOYEES[0];
-      const date = taskDateInput.value;
+      const date = taskDateInput.value || todayISO;
       const priority = taskPriorityInput.value;
+      const isRecurring = taskIsRecurringInput.checked;
+      const recurrenceType = isRecurring ? taskRecurringTypeInput.value : 'none';
+      const specificDays = [...state.selectedSpecificDays];
       const startTime = taskStartTimeInput.value;
       const endTime = taskEndTimeInput.value;
       const billable = taskBillableInput.checked;
@@ -1601,17 +2237,32 @@
 
       if (!title.trim() || !assignee) return;
 
+      const conflicts = refreshOverlapWarning();
+      if (conflicts.length > 0) {
+        showToast(
+          `Blocked: ${assignee} already has ${conflicts.length} overlapping task${conflicts.length === 1 ? '' : 's'} in that time slot`,
+          '🚫'
+        );
+        return;
+      }
+
+      const selectedScopeRadio = document.querySelector('input[name="seriesEditScope"]:checked');
+      const editScope = selectedScopeRadio ? selectedScopeRadio.value : 'single';
+
       const isEditing = Boolean(state.editingTaskId);
       submitTaskBtn.disabled = true;
       submitTaskBtn.textContent = isEditing ? 'Saving...' : 'Assigning...';
 
       if (isEditing) {
         await editTask(state.editingTaskId, {
-          title, assignee, date, priority, startTime, endTime, billable, notes
+          title, assignee, date, priority,
+          isRecurring, recurrenceType, specificDays, startTime, endTime, billable, notes,
+          editScope
         });
       } else {
-        await createTask({
-          title, assignee, date, priority, startTime, endTime, billable, notes
+        await createTaskBatch({
+          title, assignee, date, priority,
+          isRecurring, recurrenceType, specificDays, startTime, endTime, billable, notes
         });
       }
 
@@ -1620,12 +2271,35 @@
       e.target.reset();
       state.editingTaskId = null;
       state.selectedDate = date;
+      state.billableDate = date;
+      state.billableMonth = getMonthKey(date);
       nativeDatePicker.value = state.selectedDate;
       closeModal(taskModal);
       renderAll();
     });
 
-    // Employee Check-In Modal
+    viewAllPendingBtn.addEventListener('click', () => {
+      state.filter = 'pending_all';
+      renderAll();
+    });
+
+    billableDateInput.addEventListener('change', (e) => {
+      if (e.target.value) {
+        state.billableDate = e.target.value;
+        state.billableMonth = getMonthKey(e.target.value);
+        renderBillableSummary();
+        renderEmployeeRosterUI();
+      }
+    });
+
+    billableMonthInput.addEventListener('change', (e) => {
+      if (e.target.value) {
+        state.billableMonth = e.target.value;
+        renderBillableSummary();
+        renderEmployeeRosterUI();
+      }
+    });
+
     document.getElementById('profileBtn').addEventListener('click', () => {
       renderEmployeeRosterUI();
       openModal(profileModal);
@@ -1636,16 +2310,19 @@
       if (e.target === profileModal) closeModal(profileModal);
     });
 
-    // Native Date Jump
     nativeDatePicker.value = state.selectedDate;
     nativeDatePicker.addEventListener('change', (e) => {
       if (e.target.value) {
         state.selectedDate = e.target.value;
+        state.billableDate = e.target.value;
+        state.billableMonth = getMonthKey(e.target.value);
+        if (state.filter === 'pending_all') {
+          state.filter = 'all';
+        }
         renderAll();
       }
     });
 
-    // PWA Install Prompt Capture
     let deferredPrompt = null;
     const installBtn = document.getElementById('installBtn');
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -1664,10 +2341,9 @@
       deferredPrompt = null;
     });
 
-    // Inline Service Worker Registration for Offline Shell Caching
     if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
       const swCode = `
-        const CACHE_NAME = 'taskity-v2';
+        const CACHE_NAME = 'taskity-v11';
         self.addEventListener('install', (e) => {
           self.skipWaiting();
         });
@@ -1685,9 +2361,128 @@
       navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
     }
 
-    // Boot Application
+    // =========================================================================
+    // 11B. DAILY 6:00 AM MORNING PENDING TASK POPUP SCHEDULER
+    // =========================================================================
+    const morning6amModal = document.getElementById('morning6amModal');
+    const morning6amTaskList = document.getElementById('morning6amTaskList');
+    const morning6amSubtitle = document.getElementById('morning6amSubtitle');
+    const openMorning6amBtn = document.getElementById('openMorning6amBtn');
+    const closeMorning6amBtn = document.getElementById('closeMorning6amBtn');
+    const morning6amTestBtn = document.getElementById('morning6amTestBtn');
+    const morning6amViewPendingBtn = document.getElementById('morning6amViewPendingBtn');
+
+    function getPendingTasksForTodayBriefing() {
+      return getAllIncompleteTasks()
+        .filter(t => t.date <= todayISO)
+        .sort((a, b) => (a.date || '').localeCompare(b.date || '') || (a.startTime || '').localeCompare(b.startTime || ''));
+    }
+
+    function sendSystemNotificationIfPermitted(pendingTasks) {
+      if (!('Notification' in window)) return;
+      if (Notification.permission === 'granted' && pendingTasks.length > 0) {
+        try {
+          new Notification('Taskity · 6:00 AM Pending Tasks', {
+            body: `You have ${pendingTasks.length} pending task${pendingTasks.length === 1 ? '' : 's'} for today (${formatHumanDate(todayISO)}).`,
+            tag: `taskity-6am-${todayISO}`
+          });
+        } catch (e) {}
+      }
+    }
+
+    function openMorning6amPopup({ notifySystem = false } = {}) {
+      const pendingTasks = getPendingTasksForTodayBriefing();
+      const scoped = state.currentUser
+        ? pendingTasks.filter(t => t.assignee === state.currentUser)
+        : pendingTasks;
+      const listToShow = scoped.length > 0 ? scoped : pendingTasks;
+
+      morning6amSubtitle.textContent = listToShow.length > 0
+        ? `${listToShow.length} pending task${listToShow.length === 1 ? '' : 's'} for ${formatHumanDate(todayISO)}${state.currentUser && scoped.length > 0 ? ` (${state.currentUser})` : ''}.`
+        : `All caught up for ${formatHumanDate(todayISO)} — no pending tasks.`;
+
+      if (listToShow.length === 0) {
+        morning6amTaskList.innerHTML = `
+          <div class="p-5 rounded-2xl bg-emerald-50 border border-emerald-200 text-center">
+            <p class="text-sm font-bold text-emerald-900">No pending tasks for today</p>
+            <p class="text-xs text-emerald-700 mt-1">Everything due today or earlier is completed.</p>
+          </div>
+        `;
+      } else {
+        morning6amTaskList.innerHTML = listToShow.map(task => `
+          <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/90 flex items-start justify-between gap-2.5">
+            <div class="min-w-0">
+              <p class="text-xs font-extrabold text-slate-900 truncate">${escapeHTML(task.title)}</p>
+              <p class="text-[11px] text-slate-500 mt-0.5">
+                ${escapeHTML(task.assignee || 'Unassigned')} · ${escapeHTML(formatHumanDate(task.date))}
+                ${task.startTime ? ` · ${escapeHTML(formatTime12h(task.startTime))}` : ''}
+              </p>
+            </div>
+            <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 shrink-0">
+              ${Number(task.progress || 0)}%
+            </span>
+          </div>
+        `).join('');
+      }
+
+      openModal(morning6amModal);
+      if (notifySystem) {
+        sendSystemNotificationIfPermitted(listToShow);
+      }
+    }
+
+    function maybeTrigger6amPopup(force = false) {
+      const now = new Date();
+      const stampKey = `taskity_6am_shown_${todayISO}`;
+      const alreadyShownToday = localStorage.getItem(stampKey) === '1';
+
+      if (force) {
+        openMorning6amPopup({ notifySystem: true });
+        return;
+      }
+
+      // Trigger once at or after 6:00 AM on today's date
+      const isSixAmOrLater = now.getHours() > 6 || (now.getHours() === 6 && now.getMinutes() >= 0);
+      if (isSixAmOrLater && !alreadyShownToday && !state.isLoading) {
+        localStorage.setItem(stampKey, '1');
+        openMorning6amPopup({ notifySystem: true });
+      }
+    }
+
+    if (openMorning6amBtn) {
+      openMorning6amBtn.addEventListener('click', () => openMorning6amPopup({ notifySystem: false }));
+    }
+    if (closeMorning6amBtn) {
+      closeMorning6amBtn.addEventListener('click', () => closeModal(morning6amModal));
+    }
+    if (morning6amModal) {
+      morning6amModal.addEventListener('click', (e) => {
+        if (e.target === morning6amModal) closeModal(morning6amModal);
+      });
+    }
+    if (morning6amTestBtn) {
+      morning6amTestBtn.addEventListener('click', () => {
+        if ('Notification' in window && Notification.permission === 'default') {
+          Notification.requestPermission().catch(() => {});
+        }
+        openMorning6amPopup({ notifySystem: true });
+      });
+    }
+    if (morning6amViewPendingBtn) {
+      morning6amViewPendingBtn.addEventListener('click', () => {
+        closeModal(morning6amModal);
+        state.filter = 'pending_all';
+        renderAll();
+        document.getElementById('taskListContainer')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+
+    // Check every 30s so if the app stays open across 6:00 AM it pops up automatically
+    setInterval(() => maybeTrigger6amPopup(false), 30000);
+
     renderAll();
     initFirebase();
+    setTimeout(() => maybeTrigger6amPopup(false), 700);
 
     if (!state.currentUser) {
       setTimeout(() => openModal(profileModal), 500);
