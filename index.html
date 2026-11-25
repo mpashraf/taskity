@@ -171,48 +171,33 @@
 
     <!-- Top Dark Gradient Header -->
     <header class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white safe-top px-5 pb-6 rounded-b-[2rem] shadow-lg relative z-10">
-      <div class="flex items-center justify-between mb-4">
-        <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-cyan-400 flex items-center justify-center shadow-md shadow-indigo-500/30">
+      <!-- Clean Two-Item Top Bar: Brand on Left, Full-Width Employee Pill on Right -->
+      <div class="flex items-center justify-between gap-3 mb-4">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-cyan-400 flex items-center justify-center shadow-md shadow-indigo-500/30 shrink-0">
             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <div>
+          <div class="min-w-0">
             <h1 class="font-display font-extrabold text-lg tracking-tight leading-none">Taskity</h1>
             <div class="flex items-center gap-1.5 mt-1">
-              <span id="syncDot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-              <span id="syncLabel" class="text-[11px] text-slate-300 font-medium">Connecting Firestore...</span>
+              <span id="syncDot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0"></span>
+              <span id="syncLabel" class="text-[11px] text-slate-300 font-medium truncate">Connecting...</span>
             </div>
           </div>
         </div>
 
-        <!-- Active Employee Pill & Quick Triggers -->
-        <div class="flex items-center gap-1.5">
-          <button id="installBtn" class="hidden bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-white/15 transition flex items-center gap-1">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
-            </svg>
-            App
-          </button>
-
-          <button type="button" id="openProjectsModalBtn" title="Manage Projects"
-            class="bg-cyan-400/20 hover:bg-cyan-400/30 text-cyan-200 text-[11px] font-bold px-2.5 py-1.5 rounded-xl border border-cyan-300/30 transition shrink-0">
-            Projects
-          </button>
-
-          <button type="button" id="openMorning6amBtn" title="Preview 6:00 AM Morning Pending Popup"
-            class="bg-amber-400/20 hover:bg-amber-400/30 text-amber-200 text-[11px] font-bold px-2.5 py-1.5 rounded-xl border border-amber-300/30 transition shrink-0">
-            6AM
-          </button>
-
-          <button id="profileBtn" class="flex items-center gap-2 bg-white/10 hover:bg-white/15 active:scale-95 transition pl-1.5 pr-3 py-1 rounded-full border border-white/15">
-            <div id="userAvatarBadge" class="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center text-xs font-bold text-slate-950 shadow-inner">
-              ?
-            </div>
-            <span id="userNameBadge" class="text-xs font-semibold text-white max-w-[92px] truncate">Select Staff</span>
-          </button>
-        </div>
+        <!-- Employee Check-In Pill (Uncongested, Single-Line Name) -->
+        <button id="profileBtn" class="flex items-center gap-2 bg-white/10 hover:bg-white/15 active:scale-95 transition pl-1.5 pr-3 py-1.5 rounded-full border border-white/15 shrink-0 max-w-[205px]">
+          <div id="userAvatarBadge" class="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center text-xs font-bold text-slate-950 shadow-inner shrink-0">
+            ?
+          </div>
+          <span id="userNameBadge" class="text-xs font-semibold text-white whitespace-nowrap truncate">Select Staff</span>
+          <svg class="w-3.5 h-3.5 text-slate-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
       </div>
 
       <!-- Daily Team Pulse Card -->
@@ -251,19 +236,30 @@
         </div>
       </div>
 
-      <!-- Day-Only Horizontal Strip -->
+      <!-- Day-Only Horizontal Strip + Relocated Quick Utilities (6AM, App Install, Jump) -->
       <div class="flex items-center justify-between mb-2">
         <span class="text-xs font-semibold text-slate-300">Select Day</span>
-        <label class="text-xs font-semibold text-cyan-300 hover:text-cyan-200 flex items-center gap-1 cursor-pointer">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-            <line x1="16" y1="2" x2="16" y2="6"></line>
-            <line x1="8" y1="2" x2="8" y2="6"></line>
-            <line x1="3" y1="10" x2="21" y2="10"></line>
-          </svg>
-          <span>Jump</span>
-          <input type="date" id="nativeDatePicker" class="sr-only" />
-        </label>
+        <div class="flex items-center gap-2">
+          <button id="installBtn" class="hidden bg-white/10 hover:bg-white/20 text-white text-[11px] font-semibold px-2 py-1 rounded-lg border border-white/15 transition items-center gap-1">
+            <span>⬇ App</span>
+          </button>
+
+          <button type="button" id="openMorning6amBtn" title="6:00 AM Morning Pending Briefing"
+            class="bg-amber-400/20 hover:bg-amber-400/30 text-amber-200 text-[11px] font-bold px-2.5 py-1 rounded-lg border border-amber-300/30 transition">
+            ⏰ 6AM
+          </button>
+
+          <label class="text-xs font-semibold text-cyan-300 hover:text-cyan-200 flex items-center gap-1 cursor-pointer bg-white/10 px-2.5 py-1 rounded-lg border border-white/10">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <span>Jump</span>
+            <input type="date" id="nativeDatePicker" class="sr-only" />
+          </label>
+        </div>
       </div>
       <div id="dayStrip" class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
         <!-- Day pills injected by JS -->
@@ -333,13 +329,17 @@
       <div class="bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-xs">
         <div class="flex items-center justify-between gap-2 mb-2.5">
           <div class="min-w-0">
-            <h3 class="font-display font-bold text-xs uppercase tracking-wider text-slate-500" id="billableBreakdownTitle">Billable Hours & Project Report</h3>
+            <h3 class="font-display font-bold text-xs uppercase tracking-wider text-slate-500" id="billableBreakdownTitle">Billable & Projects</h3>
             <p class="text-[11px] text-slate-400 truncate" id="billableBreakdownSubtitle">Daily & monthly billable totals</p>
           </div>
           <div class="flex items-center gap-1.5 shrink-0">
+            <button type="button" id="openProjectsModalBtn"
+              class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-cyan-50 hover:bg-cyan-100 text-cyan-800 border border-cyan-200 transition">
+              📁 Projects
+            </button>
             <button type="button" id="openProjectReportModalBtn"
               class="text-[11px] font-extrabold px-2.5 py-1 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-2xs transition flex items-center gap-1">
-              <span>📊 Project Report</span>
+              <span>📊 Report</span>
             </button>
           </div>
         </div>
@@ -857,8 +857,8 @@
       selectedDate: todayISO,
       billableDate: todayISO,
       billableMonth: currentMonthKey,
-      summaryTab: 'employees', // 'employees' | 'projects'
-      reportPeriod: 'month',   // 'day' | 'month' | 'all'
+      summaryTab: 'employees',
+      reportPeriod: 'month',
       filter: 'all',
       currentUser: validSavedUser,
       selectedAssigneeForNewTask: validSavedUser || EMPLOYEES[0],
@@ -1171,13 +1171,13 @@
 
     function setSyncStatus(mode, customText = null) {
       if (mode === 'live') {
-        syncDot.className = 'w-2 h-2 rounded-full bg-emerald-400';
-        syncLabel.textContent = customText || 'Firestore Live Sync';
+        syncDot.className = 'w-2 h-2 rounded-full bg-emerald-400 shrink-0';
+        syncLabel.textContent = customText || 'Live Sync';
       } else if (mode === 'local') {
-        syncDot.className = 'w-2 h-2 rounded-full bg-amber-400';
-        syncLabel.textContent = customText || 'Local Mode (Check Rules)';
+        syncDot.className = 'w-2 h-2 rounded-full bg-amber-400 shrink-0';
+        syncLabel.textContent = customText || 'Local Mode';
       } else {
-        syncDot.className = 'w-2 h-2 rounded-full bg-indigo-400 animate-pulse';
+        syncDot.className = 'w-2 h-2 rounded-full bg-indigo-400 animate-pulse shrink-0';
         syncLabel.textContent = customText || 'Syncing...';
       }
     }
@@ -1244,8 +1244,8 @@
             state.isLoading = false;
             state.tasks = loadLocalFallbackTasks();
             const reason = error.code === 'permission-denied'
-              ? 'Firestore Rules Blocked'
-              : 'Offline / Local Mode';
+              ? 'Rules Blocked'
+              : 'Local Mode';
             setSyncStatus('local', reason);
             renderAll();
           }
@@ -1392,7 +1392,7 @@
         } catch (err) {
           console.error('Firestore write blocked:', err.code, err.message);
           state.useLocalFallback = true;
-          setSyncStatus('local', 'Firestore Rules Blocked');
+          setSyncStatus('local', 'Rules Blocked');
           showToast('Firestore rules blocked write — saved locally', '⚠️');
         }
       }
@@ -1486,7 +1486,7 @@
         } catch (err) {
           console.warn('Firestore edit failed, saved locally:', err);
           state.useLocalFallback = true;
-          setSyncStatus('local', 'Firestore Rules Blocked');
+          setSyncStatus('local', 'Rules Blocked');
         }
       }
 
@@ -1525,7 +1525,7 @@
         } catch (err) {
           console.warn('Firestore update failed, syncing locally:', err);
           state.useLocalFallback = true;
-          setSyncStatus('local', 'Firestore Rules Blocked');
+          setSyncStatus('local', 'Rules Blocked');
         }
       }
 
@@ -1657,7 +1657,7 @@
       }
 
       const teamMonthlyTotal = statsByEmp.reduce((sum, s) => sum + s.monthlyHours, 0);
-      billableBreakdownTitleEl.textContent = 'Billable Hours & Project Report';
+      billableBreakdownTitleEl.textContent = 'Billable & Projects';
       billableBreakdownSubtitleEl.textContent = `Day: ${formatHumanDate(targetDay)} · Month: ${monthLabel}`;
       billableBadgeTextEl.textContent = `${formatHours(teamMonthlyTotal)} Month`;
 
@@ -1744,7 +1744,6 @@
       const periodTasks = getTasksForReportPeriod();
       const projectNames = getAllProjectNames();
 
-      // matrix[project][emp] = { billable, nonBillable, total }
       const matrix = {};
       projectNames.forEach(proj => {
         matrix[proj] = {};
@@ -1854,7 +1853,6 @@
         </div>
       `;
 
-      // Cross-tab Matrix Table + Per-Project Employee Breakdown Cards
       const tableHeaderCols = EMPLOYEES.map(emp =>
         `<th class="px-2 py-2 text-right font-extrabold text-slate-700 whitespace-nowrap">${escapeHTML(emp.split(' ')[0])}</th>`
       ).join('');
@@ -1982,7 +1980,7 @@
     function updateUserBadge() {
       if (state.currentUser) {
         userAvatarBadge.textContent = getInitials(state.currentUser);
-        userAvatarBadge.className = `w-7 h-7 rounded-full bg-gradient-to-tr ${getEmployeeGradient(state.currentUser)} flex items-center justify-center text-xs font-bold text-white shadow-inner`;
+        userAvatarBadge.className = `w-7 h-7 rounded-full bg-gradient-to-tr ${getEmployeeGradient(state.currentUser)} flex items-center justify-center text-xs font-bold text-white shadow-inner shrink-0`;
         userNameBadge.textContent = state.currentUser;
         checkInLockBanner.classList.remove('hidden');
         checkInLockText.textContent = `Checked in as ${state.currentUser} · Other staff tasks locked`;
@@ -3004,6 +3002,7 @@
       e.preventDefault();
       deferredPrompt = e;
       installBtn.classList.remove('hidden');
+      installBtn.classList.add('flex');
     });
 
     installBtn.addEventListener('click', async () => {
@@ -3012,13 +3011,14 @@
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === 'accepted') {
         installBtn.classList.add('hidden');
+        installBtn.classList.remove('flex');
       }
       deferredPrompt = null;
     });
 
     if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
       const swCode = `
-        const CACHE_NAME = 'taskity-v13';
+        const CACHE_NAME = 'taskity-v14';
         self.addEventListener('install', (e) => {
           self.skipWaiting();
         });
